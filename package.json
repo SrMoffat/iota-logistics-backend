@@ -1,8 +1,8 @@
 {
-  "name": "iota-logistics",
+  "name": "iota-logistics-backend",
   "private": true,
   "version": "0.1.0",
-  "description": "A Strapi application",
+  "description": "Backend API to serve the logistics tracking and tracing",
   "scripts": {
     "develop": "strapi develop",
     "develop:watch": "strapi develop --watch-admin",
@@ -18,7 +18,8 @@
     "better-sqlite3": "8.0.1"
   },
   "author": {
-    "name": "A Strapi developer"
+    "name": "Moffat Gitau",
+    "email": "ngigemoffat@gmail.com"
   },
   "strapi": {
     "uuid": "304179c0-ef49-45a3-9268-0b791e101621"
