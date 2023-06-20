@@ -1,57 +1,40 @@
-# 🚀 Getting started with Strapi
+# Supply Chain Track and Trace System
 
-Strapi comes with a full featured [Command Line Interface](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html) (CLI) which lets you scaffold and manage your project in seconds.
+## Objective
+Design and implement a system that allows users to track and trace supply chain items.
 
-### `develop`
+## Components
+The system will have two main components:
+1. REST API
+2. Web Application
 
-Start your Strapi application with autoReload enabled. [Learn more](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html#strapi-develop)
+## Minimum Requirements (Backend)
+The REST API must offer an interface with this set of functions at a minimum:
+1. Create a new supply chain item
+2. Update supply chain item reference data (colour, price, etc.)
+3. Add new events associated with an item (for instance, where the item is, who has the
+custody, etc.)
+4. Query all events of an item. Particularly, a shortcut to get the last event will be quite
+helpful to know the current location / custodian of the item.
+5. You can implement using your favourite programming language / framework, database and
+cloud environment for the backend.
 
-```
-npm run develop
-# or
-yarn develop
-```
 
-### `start`
+## Addtional Requirements (Backend)
+The following non-functional requirements also need to be met.
+1. An OpenAPI / Swagger specification for the API built
+2. A JSON Schema that can also be used at runtime for payload validation purposes
+3. A Dockerfile for deployment of the API.
 
-Start your Strapi application with autoReload disabled. [Learn more](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html#strapi-start)
+## Minimum Requirements (Frontend)
+The Web Application, (Single Page Application) at a minimum, must:
+1. Offer end users the capability to query the supply chain trail of an item by using the query interface offered by the
+REST API. 
+2. It must be Javascript / TypeScript using your favourite SPA framework.
 
-```
-npm run start
-# or
-yarn start
-```
 
-### `build`
+## Addtional Requirements (Frontend)
+The following bonus requirements could also be met:
+1. Responsive web application, as mobile users are also expected.
+2. Dockerfile for deployment of the Web application.
 
-Build your admin panel. [Learn more](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html#strapi-build)
-
-```
-npm run build
-# or
-yarn build
-```
-
-## ⚙️ Deployment
-
-Strapi gives you many possible deployment options for your project. Find the one that suits you on the [deployment section of the documentation](https://docs.strapi.io/developer-docs/latest/setup-deployment-guides/deployment.html).
-
-## 📚 Learn more
-
-- [Resource center](https://strapi.io/resource-center) - Strapi resource center.
-- [Strapi documentation](https://docs.strapi.io) - Official Strapi documentation.
-- [Strapi tutorials](https://strapi.io/tutorials) - List of tutorials made by the core team and the community.
-- [Strapi blog](https://docs.strapi.io) - Official Strapi blog containing articles made by the Strapi team and the community.
-- [Changelog](https://strapi.io/changelog) - Find out about the Strapi product updates, new features and general improvements.
-
-Feel free to check out the [Strapi GitHub repository](https://github.com/strapi/strapi). Your feedback and contributions are welcome!
-
-## ✨ Community
-
-- [Discord](https://discord.strapi.io) - Come chat with the Strapi community including the core team.
-- [Forum](https://forum.strapi.io/) - Place to discuss, ask questions and find answers, show your Strapi project and get feedback or just talk with other Community members.
-- [Awesome Strapi](https://github.com/strapi/awesome-strapi) - A curated list of awesome things related to Strapi.
-
----
-
-<sub>🤫 Psst! [Strapi is hiring](https://strapi.io/careers).</sub>
