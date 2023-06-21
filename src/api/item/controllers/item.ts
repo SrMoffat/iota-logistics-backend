@@ -64,4 +64,42 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }) =
             ctx.body = err;
         };
     },
+    async getAllSupplyChainItemEvents(ctx) {
+        try {
+            const auth = get(ctx.state.auth, 'credentials');
+            const params = get(ctx.params, 'id');
+            const requestBody = get(ctx.request, 'body') as Object;
+
+            console.log({
+                auth,
+                params,
+                requestBody
+            })
+            ctx.body = {
+                success: true,
+                message: "Get item events controller finished successfully"
+            };
+        } catch (err) {
+            ctx.body = err;
+        };
+    },
+    async getSupplyChainItemMostRecentEvent(ctx) {
+        try {
+            const auth = get(ctx.state.auth, 'credentials');
+            const params = get(ctx.params, 'id');
+            const requestBody = get(ctx.request, 'body') as Object;
+
+            console.log({
+                auth,
+                params,
+                requestBody
+            })
+            ctx.body = {
+                success: true,
+                message: "Get item most recent event controller finished successfully"
+            };
+        } catch (err) {
+            ctx.body = err;
+        };
+    },
 }));
