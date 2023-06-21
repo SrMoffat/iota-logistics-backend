@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_mass_masses",
+  "info": {
+    "displayName": "mass",
+    "icon": "alien"
+  },
+  "options": {},
+  "attributes": {
+    "weight": {
+      "type": "float"
+    },
+    "unit": {
+      "type": "enumeration",
+      "enum": [
+        "gram_g",
+        "kilogram_g",
+        "tonne_t"
+      ]
+    }
+  }
+}

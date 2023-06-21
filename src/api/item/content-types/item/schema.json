@@ -4,7 +4,8 @@
   "info": {
     "singularName": "item",
     "pluralName": "items",
-    "displayName": "Item"
+    "displayName": "Item",
+    "description": ""
   },
   "options": {
     "draftAndPublish": false
@@ -39,6 +40,11 @@
     },
     "colour": {
       "type": "string"
+    },
+    "mass": {
+      "type": "component",
+      "repeatable": false,
+      "component": "mass.mass"
     }
   }
 }
