@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "packagings",
+  "info": {
+    "singularName": "packaging",
+    "pluralName": "packagings",
+    "displayName": "packaging"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "box",
+        "pallet",
+        "container"
+      ]
+    },
+    "dimensions": {
+      "type": "component",
+      "repeatable": false,
+      "component": "dimension.dimension"
+    },
+    "mass": {
+      "type": "component",
+      "repeatable": false,
+      "component": "mass.mass"
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "kind": "collectionType",
+  "collectionName": "items",
+  "info": {
+    "singularName": "item",
+    "pluralName": "items",
+    "displayName": "Item",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "uuid": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "trackingId": {
+      "type": "string",
+      "unique": true
+    },
+    "name": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "integer",
+      "min": 0,
+      "default": 1
+    },
+    "supplier": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "manufacturer": {
+      "type": "string"
+    },
+    "colour": {
+      "type": "string"
+    },
+    "mass": {
+      "type": "component",
+      "repeatable": false,
+      "component": "mass.mass"
+    },
+    "status": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::status.status",
+      "inversedBy": "item"
+    },
+    "source": {
+      "type": "component",
+      "repeatable": false,
+      "component": "location.location"
+    },
+    "destination": {
+      "type": "component",
+      "repeatable": false,
+      "component": "location.location"
+    },
+    "currentLocation": {
+      "type": "component",
+      "repeatable": false,
+      "component": "location.location"
+    },
+    "handling": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::handling.handling",
+      "inversedBy": "items"
+    },
+    "dimensions": {
+      "type": "component",
+      "repeatable": false,
+      "component": "dimension.dimension"
+    },
+    "compliance": {
+      "type": "component",
+      "repeatable": false,
+      "component": "compliance.compliance"
+    }
+  }
+}
