@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "items",
+  "info": {
+    "singularName": "item",
+    "pluralName": "items",
+    "displayName": "Item"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "uuid": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "trackingId": {
+      "type": "string",
+      "unique": true
+    },
+    "name": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "integer",
+      "min": 0,
+      "default": 1
+    },
+    "supplier": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "manufacturer": {
+      "type": "string"
+    },
+    "colour": {
+      "type": "string"
+    }
+  }
+}
