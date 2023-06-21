@@ -10,6 +10,11 @@ export default {
         path: '/supply-items/:id',
         handler: 'item.updateSupplyChainItem'
       },
+      {
+        method: 'POST',
+        path: '/supply-items/events',
+        handler: 'item.addSupplyChainItemEvent'
+      },
     ]
   };
   

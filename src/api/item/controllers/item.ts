@@ -45,4 +45,23 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }) =
             ctx.body = err;
         };
     },
+    async addSupplyChainItemEvent(ctx) {
+        try {
+            const auth = get(ctx.state.auth, 'credentials');
+            const params = get(ctx.params, 'id');
+            const requestBody = get(ctx.request, 'body') as Object;
+
+            console.log({
+                auth,
+                params,
+                requestBody
+            })
+            ctx.body = {
+                success: true,
+                message: "Add item event controller finished successfully"
+            };
+        } catch (err) {
+            ctx.body = err;
+        };
+    },
 }));
