@@ -1,0 +1,34 @@
+{
+  "collectionName": "components_compliance_compliances",
+  "info": {
+    "displayName": "compliance",
+    "icon": "arrowLeft"
+  },
+  "options": {},
+  "attributes": {
+    "regulatory": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "customs": {
+      "allowedTypes": [
+        "files",
+        "videos"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "certificates": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": true
+    }
+  }
+}

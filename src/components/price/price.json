@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_price_prices",
+  "info": {
+    "displayName": "Price",
+    "icon": "apps"
+  },
+  "options": {},
+  "attributes": {
+    "value": {
+      "type": "float"
+    },
+    "currency": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::currency.currency"
+    }
+  }
+}

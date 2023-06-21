@@ -1,0 +1,42 @@
+{
+  "kind": "collectionType",
+  "collectionName": "statuses",
+  "info": {
+    "singularName": "status",
+    "pluralName": "statuses",
+    "displayName": "status",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "item": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::item.item",
+      "mappedBy": "status"
+    },
+    "stage": {
+      "type": "enumeration",
+      "enum": [
+        "production",
+        "transit",
+        "warehousing",
+        "processing",
+        "delivery",
+        "returned",
+        "termination",
+        "problematic",
+        "success"
+      ]
+    }
+  }
+}

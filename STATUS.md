@@ -38,11 +38,11 @@
    - Return Received: The returned item has been received at the warehouse.
    - Refund Issued: The refund for the returned item has been processed and issued.
 
-7. Disposed or Scrapped:
+7. Termination:
    - Disposed: The item has been disposed of or discarded due to damage, expiry, or obsolescence.
    - Scrapped: The item has been declared unusable or non-repairable and has been scrapped.
 
-8. On Hold or Blocked:
+8. Problematic:
    - On Hold: The item is placed on hold due to specific reasons (e.g., quality issues, regulatory concerns).
    - Blocked: The item is blocked from further processing or movement due to certain constraints or restrictions.
 

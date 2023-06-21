@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_location_locations",
+  "info": {
+    "displayName": "location",
+    "icon": "archive"
+  },
+  "options": {},
+  "attributes": {
+    "longitude": {
+      "type": "float"
+    },
+    "latitude": {
+      "type": "float"
+    }
+  }
+}

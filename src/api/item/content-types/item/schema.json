@@ -45,6 +45,43 @@
       "type": "component",
       "repeatable": false,
       "component": "mass.mass"
+    },
+    "status": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::status.status",
+      "inversedBy": "item"
+    },
+    "source": {
+      "type": "component",
+      "repeatable": false,
+      "component": "location.location"
+    },
+    "destination": {
+      "type": "component",
+      "repeatable": false,
+      "component": "location.location"
+    },
+    "currentLocation": {
+      "type": "component",
+      "repeatable": false,
+      "component": "location.location"
+    },
+    "handling": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::handling.handling",
+      "inversedBy": "items"
+    },
+    "dimensions": {
+      "type": "component",
+      "repeatable": false,
+      "component": "dimension.dimension"
+    },
+    "compliance": {
+      "type": "component",
+      "repeatable": false,
+      "component": "compliance.compliance"
     }
   }
 }
