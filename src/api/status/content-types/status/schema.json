@@ -18,12 +18,6 @@
     "description": {
       "type": "text"
     },
-    "item": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::item.item",
-      "mappedBy": "status"
-    },
     "stage": {
       "type": "enumeration",
       "enum": [

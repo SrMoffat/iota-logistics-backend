@@ -1,8 +1,12 @@
-1. In Production:
-   - Manufacturing: The item is being produced or manufactured.
-   - Quality Control: The item is undergoing quality control checks and inspections.
-   - Packaging: The item is being packaged for distribution.
-
+1. In Warehousing:
+   - Stocked: The item is available in the warehouse inventory.
+   - Out of Stock: The item is temporarily unavailable in the warehouse inventory.
+2. Order Processing:
+   - Order Received: The system has received an order for the item.
+   - Order Validation: The order is being validated for accuracy and availability.
+   - Order Picking: The item is being picked from the warehouse shelves for fulfillment.
+   - Order Packing: The item is being packed for shipment.
+   - Ready for Dispatch: The item is prepared and ready to be dispatched for delivery.
 2. In Transit:
    - Shipment Created: The shipment or transport order for the item has been created.
    - Pick Up: The item is ready for pickup by the carrier or logistics provider.
@@ -11,20 +15,9 @@
    - Delayed: The item's transport has experienced a delay, and its delivery is postponed.
    - En Route: The item is progressing towards its destination.
 
-3. In Warehousing:
-   - Arrived at Warehouse: The item has reached a warehouse or distribution center.
-   - Unloading: The item is being unloaded from the transport vehicle.
-   - Inspection: The item is being inspected upon arrival at the warehouse.
-   - Put Away: The item is being stored in a specific location within the warehouse.
-   - Stocked: The item is available in the warehouse inventory.
-   - Out of Stock: The item is temporarily unavailable in the warehouse inventory.
 
-4. Order Processing:
-   - Order Received: The system has received an order for the item.
-   - Order Validation: The order is being validated for accuracy and availability.
-   - Order Picking: The item is being picked from the warehouse shelves for fulfillment.
-   - Order Packing: The item is being packed for shipment.
-   - Ready for Dispatch: The item is prepared and ready to be dispatched for delivery.
+
+
 
 5. Out for Delivery:
    - Out for Delivery: The item is in transit for final delivery to the recipient.
