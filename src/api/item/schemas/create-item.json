@@ -1,0 +1,108 @@
+{
+    "title": "Create Supply Chain Item",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "category": {
+        "type": "integer"
+      },
+      "description": {
+        "type": "string"
+      },
+      "colour": {
+        "type": "string"
+      },
+      "supplier": {
+        "type": "string"
+      },
+      "manufacturer": {
+        "type": "string"
+      },
+      "quantity": {
+        "type": "integer"
+      },
+      "weight": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer"
+          },
+          "unit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "unit"
+        ]
+      },
+      "dimensions": {
+        "type": "object",
+        "properties": {
+          "length": {
+            "type": "number"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "length",
+          "width",
+          "height",
+          "unit"
+        ]
+      },
+      "handling": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "instructions": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "instructions"
+        ]
+      },
+      "compliance": {
+        "type": "object",
+        "properties": {
+          "customs": {
+            "type": "string"
+          },
+          "regulatory": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "customs",
+          "regulatory"
+        ]
+      }
+    },
+    "required": [
+      "name",
+      "category",
+      "description",
+      "colour",
+      "supplier",
+      "manufacturer",
+      "quantity",
+      "weight",
+      "dimensions",
+      "handling",
+      "compliance"
+    ]
+  }

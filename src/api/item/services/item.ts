@@ -2,12 +2,21 @@
  * item service
  */
 
-import Ajv from 'ajv';
 import * as crypto from 'crypto';
+
+import Ajv from 'ajv';
+import { get } from 'lodash';
 import { factories } from '@strapi/strapi';
 
 import { ITEM_API_PATH } from '../../../../constants';
-import { Dimensions, VolumeDetails, ItemRequestBody } from '../types';
+import {
+    Dimensions,
+    ItemService,
+    VolumeDetails,
+    ItemRequestBody,
+    BlockClearanceInput,
+    ValidationSequenceInput,
+} from '../types';
 
 export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => ({
     generateTrackingId() {
@@ -30,6 +39,7 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => (
             throw new Error(`Error calculating volume: ${error}`);
         }
     },
+    // TODO: Transform into middlware
     validateRequest(request: ItemRequestBody, schema: Object): Boolean {
         try {
             const ajv = new Ajv();
@@ -39,5 +49,41 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => (
             throw new Error(`Error validating request: ${error}`);
         }
     },
+    // TODO: Transform into middlware
+    blockClearanceFromAccess(input: BlockClearanceInput) {
+        try {
+            const { role, message } = input;
+            const isUser = role === 'user'
+
+            if (isUser) {
+                throw new Error(message);
+            }
+        } catch (error) {
+            throw new Error(`Error validating request: ${error}`);
+        }
+    },
+    validationSequence(context: ValidationSequenceInput) {
+        try {
+            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`)
+            
+            const block = get(context, 'block');
+
+            itemService.blockClearanceFromAccess({
+                role: block,
+                message: 'User should only use order route'
+            })
+            // console.log(context)
+
+            // const ctx = get(context, 'ctx');
+
+
+
+
+
+            // console.log(context)
+        } catch (error) {
+            throw new Error(`Error validating request: ${error}`);
+        }
+    }
 }));
 
