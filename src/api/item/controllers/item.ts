@@ -11,17 +11,27 @@ import {
 export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }) => ({
     async createNewSupplyChainItem(ctx) {
         try {
+            /**
+            * (Add a Middleware) If clearance is user, block as this should come through the order route
+            * Else
+            * 1. Validate with JSON schema?
+            * 2. Create item entry
+            * Exit
+            */
             const auth = get(ctx.state.auth, 'credentials');
+            const clearance = get(auth, 'clearance');
             const requestBody = get(ctx.request, 'body') as Object;
+            const isUser = clearance === 'user'
 
-            console.log({
-                auth,
-                requestBody
-            })
-            ctx.body = {
-                success: true,
-                message: "Add item controller finished successfully"
-            };
+            if (isUser) {
+                return ctx.forbidden('User should only use order route')
+            } else {
+                console.log(requestBody)
+                ctx.body = {
+                    success: true,
+                    message: "Add item controller finished successfully"
+                };
+            }
         } catch (err) {
             ctx.body = err;
         };

@@ -1,0 +1,121 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Supply Chain Item",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "category": {
+        "type": "integer"
+      },
+      "description": {
+        "type": "string"
+      },
+      "colour": {
+        "type": "string"
+      },
+      "supplier": {
+        "type": "string"
+      },
+      "manufacturer": {
+        "type": "string"
+      },
+      "quantity": {
+        "type": "integer"
+      },
+      "weight": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer"
+          },
+          "units": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "units"
+        ]
+      },
+      "dimensions": {
+        "type": "object",
+        "properties": {
+          "length": {
+            "type": "number"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "length",
+          "width",
+          "height",
+          "unit"
+        ]
+      },
+      "handling": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "instructions": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "instructions"
+        ]
+      },
+      "compliance": {
+        "type": "object",
+        "properties": {
+          "customs": {
+            "type": "string"
+          },
+          "regulatory": {
+            "type": "string"
+          },
+          "certificates": {
+            "type": "array",
+            "items": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "customs",
+          "regulatory",
+          "certificates"
+        ]
+      }
+    },
+    "required": [
+      "name",
+      "category",
+      "description",
+      "colour",
+      "supplier",
+      "manufacturer",
+      "quantity",
+      "weight",
+      "dimensions",
+      "handling",
+      "compliance"
+    ]
+  }

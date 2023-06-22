@@ -41,31 +41,10 @@
     "colour": {
       "type": "string"
     },
-    "mass": {
+    "weight": {
       "type": "component",
       "repeatable": false,
       "component": "mass.mass"
-    },
-    "status": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::status.status",
-      "inversedBy": "item"
-    },
-    "source": {
-      "type": "component",
-      "repeatable": false,
-      "component": "location.location"
-    },
-    "destination": {
-      "type": "component",
-      "repeatable": false,
-      "component": "location.location"
-    },
-    "currentLocation": {
-      "type": "component",
-      "repeatable": false,
-      "component": "location.location"
     },
     "handling": {
       "type": "relation",
@@ -82,6 +61,12 @@
       "type": "component",
       "repeatable": false,
       "component": "compliance.compliance"
+    },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category",
+      "inversedBy": "items"
     }
   }
 }
