@@ -9,46 +9,8 @@ import { get, omit } from 'lodash';
 import { factories, Strapi } from '@strapi/strapi';
 
 import itemSchema from '../schemas/item.json';
-import {
-    ITEM_API_PATH
-} from '../../../../constants';
-
-type Dimensions = {
-    length: string
-    width: string
-    height: string
-    unit: string
-}
-
-type Handling = {
-    type: string
-    instructions: string
-}
-
-type Weight = {
-    value: number
-    unit: string
-}
-
-type Compliance = {
-    customs: string
-    regulatory: string
-    certificates: string[]
-}
-
-type ItemRequestBody = {
-    name: string
-    quantity: number
-    supplier: string
-    description: string
-    manufacturer: string
-    colour: string
-    category: number
-    weight: Weight
-    dimensions: Dimensions
-    handling: Handling
-    compliance: Compliance
-}
+import { ITEM_API_PATH } from '../../../../constants';
+import { Dimensions, ItemRequestBody } from '../types';
 
 const validateRequest = (request: ItemRequestBody, schema: Object): Boolean => {
     try {
