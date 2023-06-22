@@ -1,141 +1,128 @@
 /**
  * item controller
  */
-import * as crypto from 'crypto';
-
-import Ajv from 'ajv';
 import { uuid } from 'uuidv4';
 import { get, omit } from 'lodash';
 import { factories, Strapi } from '@strapi/strapi';
 
-import itemSchema from '../schemas/item.json';
-import {
-    ITEM_API_PATH
-} from '../../../../constants';
+import createItemSchema from '../schemas/create-item.json';
+import updateItemSchema from '../schemas/update-item.json';
 
-type Dimensions = {
-    length: string
-    width: string
-    height: string
-    unit: string
-}
+import { ItemService, Dimensions } from '../types';
+import { ITEM_API_PATH } from '../../../../constants';
 
-type Handling = {
-    type: string
-    instructions: string
-}
-
-type Weight = {
-    value: number
-    unit: string
-}
-
-type Compliance = {
-    customs: string
-    regulatory: string
-    certificates: string[]
-}
-
-type ItemRequestBody = {
-    name: string
-    quantity: number
-    supplier: string
-    description: string
-    manufacturer: string
-    colour: string
-    category: number
-    weight: Weight
-    dimensions: Dimensions
-    handling: Handling
-    compliance: Compliance
-}
-
-const validateRequest = (request: ItemRequestBody, schema: Object): Boolean => {
-    try {
-        const ajv = new Ajv();
-        const validate = ajv.compile(schema);
-        return validate(request);
-    } catch (error) {
-        console.log('validateRequest:error', error)
-        throw new Error(error)
+const blockUserFromAccess = (input) => {
+    const { ctx, clearance, message } = input;
+    const isUser = clearance === 'user';
+    if (isUser) {
+        return ctx.forbidden(message);
     }
 };
 
-const generateTrackingId = (): String => {
-    try {
-        return `IOTA#${crypto.randomBytes(4).toString("hex")}`;
-    } catch (error) {
-        console.log("Error generating order number", error);
+const validateRequest = (input) => {
+    const { ctx, message, service, body, schema } = input;
+    const isValid = service.validateRequest(body, schema)
+    if (!isValid) {
+        return ctx.badRequest(message)
     }
-}
-
-const calculateVolume = (dimensions: Dimensions): { value: string, representation: string } => {
-    const { width, height, length, unit } = dimensions;
-    const volume = parseFloat(width) * parseFloat(height) * parseFloat(length);
-
-    const value = volume.toFixed(2);
-
-    return {
-        value,
-        representation: `${value} ${unit}\u00B3`
-    }
-}
+};
 
 export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
     async createNewSupplyChainItem(ctx) {
         try {
+            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
+
             const auth = get(ctx.state.auth, 'credentials');
             const clearance = get(auth, 'clearance');
             const requestBody = get(ctx.request, 'body');
+            const dimensions: Dimensions = get(requestBody, 'dimensions');
+            const volume = itemService.calculateVolume(dimensions).value;
+            const trackingId = itemService.generateTrackingId();
 
-            const isUser = clearance === 'user'
-            const isValid = validateRequest(requestBody, itemSchema)
+            blockUserFromAccess({
+                ctx,
+                clearance,
+                message: 'User should only use order route'
+            });
 
-            if (isUser) {
-                return ctx.forbidden('User should only use order route')
-            } else if (!isValid) {
-                return ctx.badRequest('Malformed request body')
-            } else {
-                const dimensions = get(requestBody, 'dimensions')
-                let dimensionsWithVolume = {
+            validateRequest({
+                ctx,
+                body: requestBody,
+                service: itemService,
+                schema: createItemSchema,
+                message: 'Malformed create item request body'
+            });
+
+            const data = {
+                ...omit(requestBody, 'compliance'),
+                trackingId,
+                uuid: uuid(),
+                dimensions: {
                     ...dimensions,
-                    volume: Number(calculateVolume(dimensions).value)
-                };
+                    volume
+                },
+            };
 
-                const newItem = await strapi.entityService.create(`${ITEM_API_PATH}`, {
-                    data: {
-                        ...omit(requestBody, 'compliance'),
-                        dimensions: dimensionsWithVolume,
-                        uuid: uuid(),
-                        trackingId: generateTrackingId(),
-                    },
-                    // populate: ['paper']
-                });
-                console.log(newItem);
+            const newItem = await strapi.entityService.create(`${ITEM_API_PATH}`, {
+                data,
+                populate: ['category', 'weight', 'dimensions', 'handling']
+            });
 
-                ctx.body = {
-                    success: true,
-                    message: "Add item controller finished successfully"
-                };
-            }
+            ctx.body = {
+                success: true,
+                item: newItem
+            };
         } catch (err) {
             ctx.body = err;
         };
     },
     async updateSupplyChainItem(ctx) {
         try {
-            const auth = get(ctx.state.auth, 'credentials');
-            const params = get(ctx.params, 'id');
-            const requestBody = get(ctx.request, 'body') as Object;
+            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
 
-            console.log({
-                auth,
-                params,
-                requestBody
-            })
-            ctx.body = {
-                success: true,
-                message: "Update item controller finished successfully"
+            const itemId = get(ctx.params, 'id');
+            const auth = get(ctx.state.auth, 'credentials');
+            const clearance = get(auth, 'clearance');
+            const requestBody = get(ctx.request, 'body');
+
+            blockUserFromAccess({
+                ctx,
+                clearance,
+                message: 'User should only use order route'
+            });
+
+            validateRequest({
+                ctx,
+                body: requestBody,
+                service: itemService,
+                schema: updateItemSchema,
+                message: 'Malformed update item request body'
+            });
+
+            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId);
+
+            if (!entryExists) {
+                return ctx.notFound('Supply chain item not found');
+            } else {
+                const dimensions: Dimensions = get(requestBody, 'dimensions');
+                const volume = itemService.calculateVolume(dimensions).value;
+
+                const data = {
+                    ...omit(requestBody, 'compliance'),
+                    dimensions: {
+                        ...dimensions,
+                        volume
+                    },
+                }
+                const updatedItem = await strapi.entityService.update(`${ITEM_API_PATH}`, itemId, {
+                    data,
+                    populate: ['category', 'weight', 'dimensions', 'handling']
+                });
+
+                ctx.body = {
+                    success: true,
+                    item: updatedItem
+                };
             };
         } catch (err) {
             ctx.body = err;

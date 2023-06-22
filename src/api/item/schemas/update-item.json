@@ -1,5 +1,5 @@
 {
-    "title": "Supply Chain Item",
+    "title": "Update Supply Chain Item",
     "type": "object",
     "properties": {
       "name": {
@@ -91,18 +91,5 @@
           "regulatory"
         ]
       }
-    },
-    "required": [
-      "name",
-      "category",
-      "description",
-      "colour",
-      "supplier",
-      "manufacturer",
-      "quantity",
-      "weight",
-      "dimensions",
-      "handling",
-      "compliance"
-    ]
+    }
   }
