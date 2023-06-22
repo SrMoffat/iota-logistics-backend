@@ -1,19 +1,32 @@
 /**
  * item controller
  */
+import Ajv from 'ajv';
 import { get } from 'lodash';
-import { factories } from '@strapi/strapi'
+import { factories, Strapi } from '@strapi/strapi';
 
+import itemSchema from '../schemas/item.json';
 import {
     ITEM_API_PATH
 } from '../../../../constants';
 
-export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }) => ({
+const validateRequest = (request: Object, schema: Object) => {
+    try {
+        const ajv = new Ajv();
+        const validate = ajv.compile(schema);
+        return validate(request);
+    } catch (error) {
+        console.log('validateRequest:error', error)
+        // throw new Error(error)
+    }
+};
+
+
+
+export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
     async createNewSupplyChainItem(ctx) {
         try {
             /**
-            * (Add a Middleware) If clearance is user, block as this should come through the order route
-            * Else
             * 1. Validate with JSON schema?
             * 2. Create item entry
             * Exit
@@ -26,11 +39,16 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }) =
             if (isUser) {
                 return ctx.forbidden('User should only use order route')
             } else {
-                console.log(requestBody)
-                ctx.body = {
-                    success: true,
-                    message: "Add item controller finished successfully"
-                };
+                const isValid = validateRequest(requestBody, itemSchema)
+                if (isValid) {
+                    ctx.body = {
+                        success: true,
+                        message: "Add item controller finished successfully"
+                    };
+                } else {
+                    console.log('Herexxx:Not valiud')
+                    return ctx.badRequest('Malformed request body')
+                }
             }
         } catch (err) {
             ctx.body = err;
