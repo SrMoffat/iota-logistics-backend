@@ -30,13 +30,13 @@
           "value": {
             "type": "integer"
           },
-          "units": {
+          "unit": {
             "type": "string"
           }
         },
         "required": [
           "value",
-          "units"
+          "unit"
         ]
       },
       "dimensions": {

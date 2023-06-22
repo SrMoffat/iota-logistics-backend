@@ -19,10 +19,12 @@
     },
     "trackingId": {
       "type": "string",
-      "unique": true
+      "unique": true,
+      "required": true
     },
     "name": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "quantity": {
       "type": "integer",
@@ -30,7 +32,8 @@
       "default": 1
     },
     "supplier": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "description": {
       "type": "text"
@@ -45,12 +48,6 @@
       "type": "component",
       "repeatable": false,
       "component": "mass.mass"
-    },
-    "handling": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::handling.handling",
-      "inversedBy": "items"
     },
     "dimensions": {
       "type": "component",
@@ -67,6 +64,11 @@
       "relation": "manyToOne",
       "target": "api::category.category",
       "inversedBy": "items"
+    },
+    "handling": {
+      "type": "component",
+      "repeatable": false,
+      "component": "handling.handling"
     }
   }
 }
