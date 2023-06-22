@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_handling_handlings",
+  "info": {
+    "displayName": "handling",
+    "icon": "cloud"
+  },
+  "options": {},
+  "attributes": {
+    "instructions": {
+      "type": "text"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "fragile",
+        "hazardous",
+        "general"
+      ]
+    }
+  }
+}
