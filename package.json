@@ -12,10 +12,12 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "@strapi/strapi": "4.11.1",
-    "@strapi/plugin-users-permissions": "4.11.1",
     "@strapi/plugin-i18n": "4.11.1",
-    "better-sqlite3": "8.0.1"
+    "@strapi/plugin-users-permissions": "4.11.1",
+    "@strapi/strapi": "4.11.1",
+    "ajv": "^8.12.0",
+    "better-sqlite3": "8.0.1",
+    "uuidv4": "^6.2.13"
   },
   "author": {
     "name": "Moffat Gitau",

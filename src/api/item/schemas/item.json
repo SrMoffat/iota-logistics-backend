@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Supply Chain Item",
     "type": "object",
     "properties": {
@@ -30,13 +30,13 @@
           "value": {
             "type": "integer"
           },
-          "units": {
+          "unit": {
             "type": "string"
           }
         },
         "required": [
           "value",
-          "units"
+          "unit"
         ]
       },
       "dimensions": {
@@ -85,23 +85,11 @@
           },
           "regulatory": {
             "type": "string"
-          },
-          "certificates": {
-            "type": "array",
-            "items": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "string"
-              }
-            ]
           }
         },
         "required": [
           "customs",
-          "regulatory",
-          "certificates"
+          "regulatory"
         ]
       }
     },
