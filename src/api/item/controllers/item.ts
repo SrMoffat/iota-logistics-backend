@@ -29,21 +29,20 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                 const dimensions: Dimensions = get(requestBody, 'dimensions')
                 const volume = itemService.calculateVolume(dimensions).value
                 const trackingId = itemService.generateTrackingId()
-                let dimensionsWithVolume = {
-                    ...dimensions,
-                    volume
-                };
 
                 const data = {
+                    ...omit(requestBody, 'compliance'),
                     trackingId,
                     uuid: uuid(),
-                    dimensions: dimensionsWithVolume,
-                    ...omit(requestBody, 'compliance'),
+                    dimensions: {
+                        ...dimensions,
+                        volume
+                    },
                 }
 
                 const newItem = await strapi.entityService.create(`${ITEM_API_PATH}`, {
                     data,
-                    // populate: ['paper']
+                    populate: ['category', 'weight', 'dimensions', 'handling']
                 });
 
                 ctx.body = {
