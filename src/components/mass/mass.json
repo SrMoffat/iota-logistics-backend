@@ -2,11 +2,12 @@
   "collectionName": "components_mass_masses",
   "info": {
     "displayName": "mass",
-    "icon": "alien"
+    "icon": "alien",
+    "description": ""
   },
   "options": {},
   "attributes": {
-    "weight": {
+    "value": {
       "type": "float"
     },
     "unit": {

@@ -20,6 +20,14 @@
     },
     "instructions": {
       "type": "text"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "fragile",
+        "hazardous",
+        "general"
+      ]
     }
   }
 }
