@@ -34,3 +34,11 @@ export type ItemRequestBody = {
     handling: Handling
     compliance: Compliance
 }
+
+export type VolumeDetails = { value: number, representation: string }
+
+export type ItemService = {
+    generateTrackingId(): string
+    validateRequest(request: ItemRequestBody, schema: Object): Boolean
+    calculateVolume(dimensions: Dimensions): { value: string, representation: string }
+}
