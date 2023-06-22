@@ -5,7 +5,7 @@ import * as crypto from 'crypto';
 
 import Ajv from 'ajv';
 import { uuid } from 'uuidv4';
-import { get } from 'lodash';
+import { get, omit } from 'lodash';
 import { factories, Strapi } from '@strapi/strapi';
 
 import itemSchema from '../schemas/item.json';
@@ -84,10 +84,6 @@ const calculateVolume = (dimensions: Dimensions): { value: string, representatio
 export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
     async createNewSupplyChainItem(ctx) {
         try {
-            /**
-            * 2. Create item entry
-            * Exit
-            */
             const auth = get(ctx.state.auth, 'credentials');
             const clearance = get(auth, 'clearance');
             const requestBody = get(ctx.request, 'body');
@@ -103,13 +99,13 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                 const dimensions = get(requestBody, 'dimensions')
                 let dimensionsWithVolume = {
                     ...dimensions,
-                    volume: calculateVolume(dimensions).representation
+                    volume: Number(calculateVolume(dimensions).value)
                 };
 
                 const newItem = await strapi.entityService.create(`${ITEM_API_PATH}`, {
                     data: {
-                        ...requestBody,
-                        ...dimensionsWithVolume,
+                        ...omit(requestBody, 'compliance'),
+                        dimensions: dimensionsWithVolume,
                         uuid: uuid(),
                         trackingId: generateTrackingId(),
                     },
