@@ -5,7 +5,7 @@
 import * as crypto from 'crypto';
 
 import Ajv from 'ajv';
-import { get } from 'lodash';
+import amqp from 'amqplib';
 import { factories } from '@strapi/strapi';
 
 import { ITEM_API_PATH } from '../../../../constants';
@@ -14,9 +14,11 @@ import {
     ItemService,
     VolumeDetails,
     ItemRequestBody,
+    RabbitMQConnection,
     BlockClearanceInput,
-    ValidationSequenceInput,
 } from '../types';
+
+let queue = 'test_queue';
 
 export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => ({
     generateTrackingId() {
@@ -62,28 +64,62 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => (
             throw new Error(`Error validating request: ${error}`);
         }
     },
-    validationSequence(context: ValidationSequenceInput) {
+    async connectToRabbitMq() {
+        const connection = await amqp.connect('amqp://localhost');
+        const channel = await connection.createChannel();
+        return { connection, channel };
+    },
+    async publishMessage() {
+        let connection: RabbitMQConnection;
         try {
-            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`)
-            
-            const block = get(context, 'block');
+            // const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
+            // const { connection, channel } = itemService.connectToRabbitMq()
+            // console.log({
+            //     connection,
+            //     channel
+            // })
+            connection = await amqp.connect("amqp://localhost");
 
-            itemService.blockClearanceFromAccess({
-                role: block,
-                message: 'User should only use order route'
-            })
-            // console.log(context)
+            const channel = await connection.createChannel();
 
-            // const ctx = get(context, 'ctx');
+            await channel.assertQueue(queue, { durable: true });
 
+            channel.sendToQueue(queue, Buffer.from(JSON.stringify({
+                name: 'me',
+                email: 'me@mail.com'
+            })));
 
-
-
-
-            // console.log(context)
+            await channel.close();
         } catch (error) {
-            throw new Error(`Error validating request: ${error}`);
+            throw new Error(`Error publishing message: ${error}`);
+        } finally {
+            if (connection) await connection.close();
         }
-    }
+    },
+    async consumeMessages() {
+        let connection: RabbitMQConnection;
+
+        try {
+            connection = await amqp.connect("amqp://localhost");
+
+            const channel = await connection.createChannel();
+
+            await channel.assertQueue(queue);
+
+            channel.consume(queue, (message) => {
+                const messageContent = JSON.parse(message.content.toString());
+                channel.ack(message);
+                console.log({
+                    message,
+                    messageContent
+                })
+            });
+
+        } catch (error) {
+            throw new Error(`Error consuming message: ${error}`);
+        } finally {
+            if (connection) await connection.close();
+        }
+    },
 }));
 

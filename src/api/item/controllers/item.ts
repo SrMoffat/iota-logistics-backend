@@ -130,15 +130,10 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
     },
     async addSupplyChainItemEvent(ctx) {
         try {
-            const auth = get(ctx.state.auth, 'credentials');
-            const params = get(ctx.params, 'id');
-            const requestBody = get(ctx.request, 'body') as Object;
+            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
+            itemService.publishMessage()
+            itemService.consumeMessages()
 
-            console.log({
-                auth,
-                params,
-                requestBody
-            })
             ctx.body = {
                 success: true,
                 message: "Add item event controller finished successfully"
