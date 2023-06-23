@@ -5,18 +5,20 @@
 import * as crypto from 'crypto';
 
 import Ajv from 'ajv';
-import { get } from 'lodash';
+import amqp from 'amqplib';
 import { factories } from '@strapi/strapi';
 
 import { ITEM_API_PATH } from '../../../../constants';
 import {
     Dimensions,
-    ItemService,
     VolumeDetails,
     ItemRequestBody,
     BlockClearanceInput,
-    ValidationSequenceInput,
+    PublishMessageInput,
+    ConsumerMessageInput,
 } from '../types';
+
+let queue = 'test_queue';
 
 export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => ({
     generateTrackingId() {
@@ -34,12 +36,11 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => (
             return {
                 value: Number(value),
                 representation: `${value} ${unit}\u00B3`
-            }
+            };
         } catch (error) {
             throw new Error(`Error calculating volume: ${error}`);
-        }
+        };
     },
-    // TODO: Transform into middlware
     validateRequest(request: ItemRequestBody, schema: Object): Boolean {
         try {
             const ajv = new Ajv();
@@ -47,9 +48,8 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => (
             return validate(request);
         } catch (error) {
             throw new Error(`Error validating request: ${error}`);
-        }
+        };
     },
-    // TODO: Transform into middlware
     blockClearanceFromAccess(input: BlockClearanceInput) {
         try {
             const { role, message } = input;
@@ -60,30 +60,50 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => (
             }
         } catch (error) {
             throw new Error(`Error validating request: ${error}`);
+        };
+    },
+    async connectToRabbitMq() {
+        let connection;
+        try {
+            connection = await amqp.connect('amqp://localhost');
+            const channel = await connection.createChannel();
+            return { connection, channel };
+        } catch (error) {
+            console.log('New Galctica-error-->', error)
+            throw new Error(`Error connecting to RabbitMQ: ${error}`);
+        } finally {
+            // if (connection) await connection.close();
         }
     },
-    validationSequence(context: ValidationSequenceInput) {
+    async publishMessage(details: PublishMessageInput) {
         try {
-            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`)
-            
-            const block = get(context, 'block');
-
-            itemService.blockClearanceFromAccess({
-                role: block,
-                message: 'User should only use order route'
-            })
-            // console.log(context)
-
-            // const ctx = get(context, 'ctx');
-
-
-
-
-
-            // console.log(context)
+            const { channel: messageChannel, queueName, message } = details;
+            await messageChannel.assertQueue(queueName);
+            messageChannel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)));
+            // await messageChannel.close();
         } catch (error) {
-            throw new Error(`Error validating request: ${error}`);
+            console.log('New AI-error-->', error)
+            throw new Error(`Error publishing message: ${error}`);
         }
-    }
+    },
+    async consumeMessages(details: ConsumerMessageInput) {
+        try {
+            const { channel: messageChannel, queueName, onMessageReceived } = details;
+            await messageChannel.assertQueue(queue);
+
+            messageChannel.consume(queueName, (message) => {
+                const messageContent = JSON.parse(message.content.toString());
+                messageChannel.ack(message);
+                console.log({
+                    message,
+                    messageContent
+                })
+                onMessageReceived()
+            });
+
+        } catch (error) {
+            throw new Error(`Error consuming message: ${error}`);
+        }
+    },
 }));
 

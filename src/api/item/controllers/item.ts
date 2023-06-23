@@ -130,14 +130,21 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
     },
     async addSupplyChainItemEvent(ctx) {
         try {
-            const auth = get(ctx.state.auth, 'credentials');
-            const params = get(ctx.params, 'id');
-            const requestBody = get(ctx.request, 'body') as Object;
-
-            console.log({
-                auth,
-                params,
-                requestBody
+            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
+            const { connection, channel } = await itemService.connectToRabbitMq();
+            await itemService.publishMessage({
+                channel,
+                queueName: 'test_queue',
+                message: {
+                    name: 'ungowami'
+                },
+            })
+            await itemService.consumeMessages({
+                channel,
+                queueName: 'test_queue',
+                onMessageReceived: () => {
+                    console.log('received');
+                }
             })
             ctx.body = {
                 success: true,
