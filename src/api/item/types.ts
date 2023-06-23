@@ -1,3 +1,5 @@
+import { Channel, ChannelModel } from 'amqplib';
+
 export type Dimensions = {
     unit: string;
     width: string;
@@ -75,12 +77,23 @@ export type RabbitMQConnection = {
     close: () => any;
 };
 
+export type PublishMessageInput = {
+    channel: Channel;
+    queueName: string;
+    message: Object;
+};
+export type ConsumerMessageInput = {
+    channel: Channel;
+    queueName: string;
+    onMessageReceived: () => void;
+};
+
 export type ItemService = {
-    publishMessage(): string;
-    consumeMessages(): string;
     generateTrackingId(): string;
-    connectToRabbitMq(): { connection: any, channel: any };
+    publishMessage: (data: PublishMessageInput) => Promise<string>;
+    consumeMessages: (data: ConsumerMessageInput) => Promise<string>;
     blockClearanceFromAccess(details: BlockClearanceInput): string;
     validateRequest(request: ItemRequestBody, schema: Object): Boolean;
+    connectToRabbitMq: () => Promise<{ connection: ChannelModel, channel: Channel }>;
     calculateVolume(dimensions: Dimensions): { value: string, representation: string };
 };

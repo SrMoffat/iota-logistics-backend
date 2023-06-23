@@ -131,9 +131,21 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
     async addSupplyChainItemEvent(ctx) {
         try {
             const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
-            itemService.publishMessage()
-            itemService.consumeMessages()
-
+            const { connection, channel } = await itemService.connectToRabbitMq();
+            await itemService.publishMessage({
+                channel,
+                queueName: 'test_queue',
+                message: {
+                    name: 'ungowami'
+                },
+            })
+            await itemService.consumeMessages({
+                channel,
+                queueName: 'test_queue',
+                onMessageReceived: () => {
+                    console.log('received');
+                }
+            })
             ctx.body = {
                 success: true,
                 message: "Add item event controller finished successfully"
