@@ -17,6 +17,17 @@
     },
     "position": {
       "type": "integer"
+    },
+    "steps": {
+      "type": "component",
+      "repeatable": true,
+      "component": "step.step"
+    },
+    "events": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::event.event",
+      "mappedBy": "milestone"
     }
   }
 }

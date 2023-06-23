@@ -132,6 +132,8 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
         try {
             const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
             const { connection, channel } = await itemService.connectToRabbitMq();
+            // Create event entry and link it to this item
+            // Emit an event to the topic with the new event details
             await itemService.publishMessage({
                 channel,
                 queueName: 'test_queue',
