@@ -12,7 +12,7 @@ import {
     PublishMessageInput,
     ConsumerMessageInput,
     CreateAndPublishEventInput,
-} from '../../item/types';
+} from '../types';
 
 
 export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({

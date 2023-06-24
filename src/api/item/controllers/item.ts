@@ -8,7 +8,8 @@ import { factories, Strapi } from '@strapi/strapi';
 import createItemSchema from '../schemas/create-item.json';
 import updateItemSchema from '../schemas/update-item.json';
 
-import { ItemService, Dimensions, EventService, ItemRequestBody } from '../types';
+import { EventService } from '../../event/types';
+import { ItemService, Dimensions, ItemRequestBody } from '../types';
 import {
     STAGES,
     STATUSES,
@@ -109,74 +110,6 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
             ctx.body = {
                 success: true,
                 item: updatedItem
-            };
-        } catch (err) {
-            ctx.body = err;
-        };
-    },
-    async addSupplyChainItemEvent(ctx) {
-        try {
-            const amqpUrl = 'amqp://localhost';
-
-            const eventService: EventService = strapi.service(`${ITEM_API_PATH}`);
-            const { connection, channel } = await eventService.connectToRabbitMq(amqpUrl);
-            // Create event entry and link it to this item
-            // Emit an event to the topic with the new event details
-            await eventService.publishMessage({
-                channel,
-                queueName: 'test_queue',
-                message: {
-                    name: 'ungowami'
-                },
-            })
-            await eventService.consumeMessages({
-                channel,
-                queueName: 'test_queue',
-                onMessageReceived: () => {
-                    console.log('received');
-                }
-            })
-            ctx.body = {
-                success: true,
-                message: "Add item event controller finished successfully"
-            };
-        } catch (err) {
-            ctx.body = err;
-        };
-    },
-    async getAllSupplyChainItemEvents(ctx) {
-        try {
-            const auth = get(ctx.state.auth, 'credentials');
-            const params = get(ctx.params, 'id');
-            const requestBody = get(ctx.request, 'body') as Object;
-
-            console.log({
-                auth,
-                params,
-                requestBody
-            })
-            ctx.body = {
-                success: true,
-                message: "Get item events controller finished successfully"
-            };
-        } catch (err) {
-            ctx.body = err;
-        };
-    },
-    async getSupplyChainItemMostRecentEvent(ctx) {
-        try {
-            const auth = get(ctx.state.auth, 'credentials');
-            const params = get(ctx.params, 'id');
-            const requestBody = get(ctx.request, 'body') as Object;
-
-            console.log({
-                auth,
-                params,
-                requestBody
-            })
-            ctx.body = {
-                success: true,
-                message: "Get item most recent event controller finished successfully"
             };
         } catch (err) {
             ctx.body = err;
