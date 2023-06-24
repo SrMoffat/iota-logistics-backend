@@ -124,6 +124,7 @@ export type Event = {
     status: string;
     createdAt?: string;
     updatedAt?: string;
+    item: Item;
 };
 
 export type CreateAndPublishEventInput = {
@@ -136,7 +137,7 @@ export type CreateAndPublishEventInput = {
 export type EventService = {
     publishMessage: (data: PublishMessageInput) => Promise<string>;
     consumeMessages: (data: ConsumerMessageInput) => Promise<string>;
-    createEvent: (details: CreateAndPublishEventInput) => Promise<Item>;
+    createEvent: (details: CreateAndPublishEventInput) => Promise<Event>;
     createAndPublishEvent: (details: CreateAndPublishEventInput) => Promise<void>;
     connectToRabbitMq: (url: string) => Promise<{ connection: Connection, channel: Channel }>;
 };

@@ -9,7 +9,13 @@ import createItemSchema from '../schemas/create-item.json';
 import updateItemSchema from '../schemas/update-item.json';
 
 import { ItemService, Dimensions, EventService } from '../types';
-import { ITEM_API_PATH, EVENT_API_PATH } from '../../../../constants';
+import {
+    STAGES,
+    STATUSES,
+    ITEM_API_PATH,
+    EVENT_API_PATH,
+    NEW_PRODUCT_QUEUE_NAME,
+} from '../../../../constants';
 
 const blockUserFromAccess = (input) => {
     const { ctx, clearance, message } = input;
@@ -21,10 +27,10 @@ const blockUserFromAccess = (input) => {
 
 const validateRequest = (input) => {
     const { ctx, message, service, body, schema } = input;
-    const isValid = service.validateRequest(body, schema)
+    const isValid = service.validateRequest(body, schema);
     if (!isValid) {
-        return ctx.badRequest(message)
-    }
+        return ctx.badRequest(message);
+    };
 };
 
 export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
@@ -71,24 +77,19 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
             });
 
             const itemCreated = get(newItem, 'id');
-            const itemCreatedId = get(newItem, 'trackingId');
 
             if (itemCreated) {
                 await eventService.createAndPublishEvent({
                     item: newItem,
-                    queue: 'new-product-created',
-                    stage: 'warehousing',
-                    status: 'stocked'
+                    queue: NEW_PRODUCT_QUEUE_NAME,
+                    stage: STAGES.WAREHOUSING,
+                    status: STATUSES.STOCKED
                 });
             }
 
-            // ctx.body = {
-            //     success: true,
-            //     item: newItem
-            // };
             ctx.body = {
                 success: true,
-                item: 'newItem'
+                item: newItem
             };
         } catch (err) {
             ctx.body = err;

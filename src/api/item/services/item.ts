@@ -13,8 +13,6 @@ import {
     VolumeDetails,
     ItemRequestBody,
     BlockClearanceInput,
-    PublishMessageInput,
-    ConsumerMessageInput,
 } from '../types';
 
 let queue = 'test_queue';
@@ -60,36 +58,6 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => (
         } catch (error) {
             throw new Error(`Error validating request: ${error}`);
         };
-    },
-    async publishMessage(details: PublishMessageInput) {
-        try {
-            const { channel: messageChannel, queueName, message } = details;
-            await messageChannel.assertQueue(queueName);
-            messageChannel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)));
-            // await messageChannel.close();
-        } catch (error) {
-            console.log('New AI-error-->', error)
-            throw new Error(`Error publishing message: ${error}`);
-        }
-    },
-    async consumeMessages(details: ConsumerMessageInput) {
-        try {
-            const { channel: messageChannel, queueName, onMessageReceived } = details;
-            await messageChannel.assertQueue(queue);
-
-            messageChannel.consume(queueName, (message) => {
-                const messageContent = JSON.parse(message.content.toString());
-                messageChannel.ack(message);
-                console.log({
-                    message,
-                    messageContent
-                })
-                onMessageReceived()
-            });
-
-        } catch (error) {
-            throw new Error(`Error consuming message: ${error}`);
-        }
     },
 }));
 

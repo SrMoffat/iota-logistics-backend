@@ -2,21 +2,21 @@
  * event service
  */
 
-import amqp, { Connection } from 'amqplib';
+import amqp, { Connection, Channel } from 'amqplib';
 import { factories, Strapi } from '@strapi/strapi';
 
+import { EVENT_API_PATH } from '../../../../constants';
+import { 
+    Event,
+    EventService,
+    PublishMessageInput,
+    ConsumerMessageInput,
+    CreateAndPublishEventInput,
+} from '../../item/types';
 
-import { EVENT_API_PATH, ITEM_API_PATH } from '../../../../constants';
-import { CreateAndPublishEventInput, Item, ItemService, EventService } from '../../item/types';
-
-
-
-/**
- * newItem, `${itemCreatedId}`
- */
 
 export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
-    async connectToRabbitMq(url: string) {
+    async connectToRabbitMq(url: string): Promise<{ connection: Connection; channel: Channel; }> {
         let connection: Connection;
         try {
             connection = await amqp.connect(url);
@@ -29,7 +29,7 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
             // if (connection) await connection.close();
         }
     },
-    async createEvent(details: CreateAndPublishEventInput) {
+    async createEvent(details: CreateAndPublishEventInput): Promise<Event> {
         try {
             const { item, stage, status } = details;
 
@@ -44,44 +44,60 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
                 data,
                 populate: ['item']
             });
-            // const newEvent = await strapi.entityService.create(`${EVENT_API_PATH}`, {
-            //     data,
-            //     populate: ['item', 'status']
-            // });
-            console.log('newEvent', data)
-            console.log('newEvent', newEvent)
+            return newEvent
         } catch (error) {
             console.log('error', error)
             throw new Error(`Error creating event: ${error}`);
         }
     },
-    async publishEvent(details: Item, queue: string) {
+    async publishMessage(details: PublishMessageInput): Promise<void> {
         try {
-            console.log('Create and emit event')
+            const { channel: messageChannel, queueName, message } = details;
+            await messageChannel.assertQueue(queueName);
+            messageChannel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)));
+            // await messageChannel.close();
         } catch (error) {
-            throw new Error(`Error publishing event: ${error}`);
+            console.log('New AI-error-->', error)
+            throw new Error(`Error publishing message: ${error}`);
         }
     },
-    async createAndPublishEvent(details: CreateAndPublishEventInput) {
+    async consumeMessages(details: ConsumerMessageInput) {
+        try {
+            const { channel: messageChannel, queueName, onMessageReceived } = details;
+            await messageChannel.assertQueue(queueName);
+
+            messageChannel.consume(queueName, (message) => {
+                const messageContent = JSON.parse(message.content.toString());
+                messageChannel.ack(message);
+                console.log({
+                    message,
+                    messageContent
+                })
+                onMessageReceived()
+            });
+
+        } catch (error) {
+            throw new Error(`Error consuming message: ${error}`);
+        }
+    },
+    async createAndPublishEvent(details: CreateAndPublishEventInput): Promise<Event> {
         try {
             const amqpUrl = 'amqp://localhost';
-            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
             const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
 
             const dbEevent = await eventService.createEvent(details)
 
-            // const { connection, channel } = await eventService.connectToRabbitMq(amqpUrl);
+            const { channel } = await eventService.connectToRabbitMq(amqpUrl);
 
-            // await itemService.publishMessage({
-            //     channel,
-            //     queueName: queue,
-            //     message: details,
-            // })
+            await eventService.publishMessage({
+                channel,
+                queueName: details.queue,
+                message: details,
+            })
 
-
-            // console.log('Create and emit event', details)
+            return dbEevent
         } catch (error) {
-            throw new Error(`Error generating trackingId: ${error}`);
+            throw new Error(`Error creating and publishing event: ${error}`);
         }
     }
 }));
