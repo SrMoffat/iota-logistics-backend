@@ -5,22 +5,60 @@
 import * as crypto from 'crypto';
 
 import Ajv from 'ajv';
-import amqp from 'amqplib';
-import { factories } from '@strapi/strapi';
+import { get, omit } from 'lodash';
+import { factories, Strapi } from '@strapi/strapi';
 
 import { ITEM_API_PATH } from '../../../../constants';
 import {
     Dimensions,
+    ItemDetails,
+    ItemService,
     VolumeDetails,
     ItemRequestBody,
     BlockClearanceInput,
-    PublishMessageInput,
-    ConsumerMessageInput,
 } from '../types';
 
-let queue = 'test_queue';
 
-export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => ({
+export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
+    async createItem(details: ItemDetails) {
+        try {
+            const newItem = await strapi.entityService.create(`${ITEM_API_PATH}`, {
+                data: details,
+                populate: ['category', 'weight', 'dimensions', 'handling']
+            });
+            return newItem
+        } catch (error) {
+            throw new Error(`Error creating item: ${error}`);
+        }
+    },
+    async updateItem(details) {
+        try {
+            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
+            const { id, ctx, body } = details;
+            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, id);
+
+            if (!entryExists) {
+                return ctx.notFound('Supply chain item not found');
+            }
+            const dimensions: Dimensions = get(body, 'dimensions');
+            const volume = itemService.calculateVolume(dimensions).value;
+            const data = {
+                ...omit(body, 'compliance'),
+                dimensions: {
+                    ...dimensions,
+                    volume
+                },
+            }
+            const updatedItem = await strapi.entityService.update(`${ITEM_API_PATH}`, entryExists.id, {
+                data,
+                populate: '*'
+                // populate: ['category', 'weight', 'dimensions', 'handling']
+            });
+            return updatedItem
+        } catch (error) {
+            throw new Error(`Error creating item: ${error}`);
+        }
+    },
     generateTrackingId() {
         try {
             return `IOTA#${crypto.randomBytes(4).toString("hex")}`;
@@ -54,56 +92,12 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => (
         try {
             const { role, message } = input;
             const isUser = role === 'user'
-
             if (isUser) {
                 throw new Error(message);
             }
         } catch (error) {
             throw new Error(`Error validating request: ${error}`);
         };
-    },
-    async connectToRabbitMq() {
-        let connection;
-        try {
-            connection = await amqp.connect('amqp://localhost');
-            const channel = await connection.createChannel();
-            return { connection, channel };
-        } catch (error) {
-            console.log('New Galctica-error-->', error)
-            throw new Error(`Error connecting to RabbitMQ: ${error}`);
-        } finally {
-            // if (connection) await connection.close();
-        }
-    },
-    async publishMessage(details: PublishMessageInput) {
-        try {
-            const { channel: messageChannel, queueName, message } = details;
-            await messageChannel.assertQueue(queueName);
-            messageChannel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)));
-            // await messageChannel.close();
-        } catch (error) {
-            console.log('New AI-error-->', error)
-            throw new Error(`Error publishing message: ${error}`);
-        }
-    },
-    async consumeMessages(details: ConsumerMessageInput) {
-        try {
-            const { channel: messageChannel, queueName, onMessageReceived } = details;
-            await messageChannel.assertQueue(queue);
-
-            messageChannel.consume(queueName, (message) => {
-                const messageContent = JSON.parse(message.content.toString());
-                messageChannel.ack(message);
-                console.log({
-                    message,
-                    messageContent
-                })
-                onMessageReceived()
-            });
-
-        } catch (error) {
-            throw new Error(`Error consuming message: ${error}`);
-        }
     },
 }));
 

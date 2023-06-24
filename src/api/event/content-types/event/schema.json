@@ -1,16 +1,39 @@
 {
-  "collectionName": "components_step_steps",
+  "kind": "collectionType",
+  "collectionName": "events",
   "info": {
-    "displayName": "step",
-    "icon": "arrowRight",
+    "singularName": "event",
+    "pluralName": "events",
+    "displayName": "event",
     "description": ""
   },
-  "options": {},
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
   "attributes": {
-    "description": {
-      "type": "string"
+    "data": {
+      "type": "json"
     },
-    "name": {
+    "item": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::item.item",
+      "inversedBy": "events"
+    },
+    "stage": {
+      "type": "enumeration",
+      "enum": [
+        "warehousing",
+        "processing",
+        "transit",
+        "delivery",
+        "returned",
+        "recovered",
+        "termination"
+      ]
+    },
+    "status": {
       "type": "enumeration",
       "enum": [
         "stocked",

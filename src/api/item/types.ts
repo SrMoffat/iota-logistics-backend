@@ -1,4 +1,4 @@
-import { Channel, ChannelModel } from 'amqplib';
+import { Channel, Connection } from 'amqplib';
 
 export type Dimensions = {
     unit: string;
@@ -6,6 +6,14 @@ export type Dimensions = {
     length: string;
     height: string;
 };
+
+export type Category = {
+    id: number;
+    name: string;
+    description: string;
+    createdAt: string;
+    updatedAt: string;
+}
 
 export type Handling = {
     type: string;
@@ -88,12 +96,70 @@ export type ConsumerMessageInput = {
     onMessageReceived: () => void;
 };
 
-export type ItemService = {
-    generateTrackingId(): string;
+export type Item = {
+    id: number;
+    uuid: string;
+    trackingId: string;
+    name: string;
+    quantity: number;
+    supplier: string;
+    description: string;
+    manufacturer: string;
+    colour: string;
+    createdAt: string;
+    updatedAt: string;
+    category: Category;
+    weight: Weight & { id: number };
+    dimensions: Dimensions & {
+        id: number;
+        volume: number;
+    };
+    handling: Handling & { id: number; }
+}
+
+export type Event = {
+    id: number;
+    data: Item;
+    stage: string;
+    status: string;
+    createdAt?: string;
+    updatedAt?: string;
+    item: Item;
+};
+
+export type CreateAndPublishEventInput = {
+    item: Item;
+    queue: string;
+    stage: string;
+    status: string;
+};
+
+export type ItemDetails = Omit<ItemRequestBody, 'compliance'> & {
+    trackingId: string;
+    uuid: string;
+    dimensions: Dimensions & {
+        volume: number | string;
+    };
+};
+
+export type UpdateItemInput = {
+    trackingId: string;
+
+};
+
+export type EventService = {
     publishMessage: (data: PublishMessageInput) => Promise<string>;
     consumeMessages: (data: ConsumerMessageInput) => Promise<string>;
+    createEvent: (details: CreateAndPublishEventInput) => Promise<Event>;
+    createAndPublishEvent: (details: CreateAndPublishEventInput) => Promise<void>;
+    connectToRabbitMq: (url: string) => Promise<{ connection: Connection, channel: Channel }>;
+};
+
+export type ItemService = {
+    generateTrackingId(): string;
+    createItem: (details: ItemDetails) => Promise<Item>;
+    updateItem: (details) => Promise<Item>;
     blockClearanceFromAccess(details: BlockClearanceInput): string;
     validateRequest(request: ItemRequestBody, schema: Object): Boolean;
-    connectToRabbitMq: () => Promise<{ connection: ChannelModel, channel: Channel }>;
     calculateVolume(dimensions: Dimensions): { value: string, representation: string };
 };
