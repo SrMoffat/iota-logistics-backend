@@ -8,7 +8,8 @@ import Ajv from 'ajv';
 import { get, omit } from 'lodash';
 import { factories, Strapi } from '@strapi/strapi';
 
-import { ITEM_API_PATH } from '../../../../constants';
+import { EventService } from '../../event/types';
+import { ITEM_API_PATH, EVENT_API_PATH, NEW_PRODUCT_QUEUE_NAME, STAGES, STATUSES, STAGE_API_PATH } from '../../../../constants';
 import {
     Dimensions,
     ItemDetails,
@@ -22,10 +23,40 @@ import {
 export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
     async createItem(details: ItemDetails) {
         try {
+            const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
+            const stage = await strapi.db.query(`${STAGE_API_PATH}`).findOne({
+                where: {
+                    name: {
+                        $contains: STAGES.WAREHOUSING
+                    }
+                },
+                populate: ['statuses'],
+            });
+            const stageId = get(stage, 'id');
+            const stageName = get(stage, 'name');
+            const statuses = get(stage, 'statuses');
+            const stockStatus = statuses.find(entry => entry.name === STATUSES.STOCKED);
+            const stockStatusId = get(stockStatus, 'id');
+            const stockStatusName = get(stockStatus, 'name');
             const newItem = await strapi.entityService.create(`${ITEM_API_PATH}`, {
                 data: details,
                 populate: ['category', 'weight', 'dimensions', 'handling']
             });
+            const itemCreated = get(newItem, 'id');
+            if (itemCreated) {
+                await eventService.createAndPublishEvent({
+                    item: newItem,
+                    queue: NEW_PRODUCT_QUEUE_NAME,
+                    stage: {
+                        id: stageId,
+                        name: stageName
+                    },
+                    status: {
+                        id: stockStatusId,
+                        name: stockStatusName
+                    }
+                });
+            }
             return newItem
         } catch (error) {
             throw new Error(`Error creating item: ${error}`);

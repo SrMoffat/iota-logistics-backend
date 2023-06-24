@@ -34,11 +34,15 @@ const validateRequest = (input) => {
     };
 };
 
+const getWarehousingStageDetails = (input) => {
+    const { ctx } = input;
+
+};
+
 export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
     async createNewSupplyChainItem(ctx) {
         try {
             const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
-            const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
             const auth = get(ctx.state.auth, 'credentials');
             const clearance = get(auth, 'clearance');
             const requestBody: ItemRequestBody = get(ctx.request, 'body');
@@ -66,15 +70,6 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                     volume
                 },
             })
-            const itemCreated = get(newItem, 'id');
-            if (itemCreated) {
-                await eventService.createAndPublishEvent({
-                    item: newItem,
-                    queue: NEW_PRODUCT_QUEUE_NAME,
-                    stage: STAGES.WAREHOUSING,
-                    status: STATUSES.STOCKED
-                });
-            }
             ctx.body = {
                 success: true,
                 item: newItem
