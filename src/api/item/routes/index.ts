@@ -9,22 +9,7 @@ export default {
         method: 'PUT',
         path: '/supply-items/:id',
         handler: 'item.updateSupplyChainItem'
-      },
-      {
-        method: 'POST',
-        path: '/supply-items/:id/events',
-        handler: 'item.addSupplyChainItemEvent'
-      },
-      {
-        method: 'GET',
-        path: '/supply-items/:id/events',
-        handler: 'item.getAllSupplyChainItemEvents'
-      },
-      {
-        method: 'GET',
-        path: '/supply-items/:id/events/recent/:count',
-        handler: 'item.getSupplyChainItemMostRecentEvent'
-      },
+      }
     ]
   };
   
