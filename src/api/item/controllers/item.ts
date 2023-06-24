@@ -1,15 +1,15 @@
 /**
  * item controller
  */
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 import { get, omit } from 'lodash';
 import { factories, Strapi } from '@strapi/strapi';
 
 import createItemSchema from '../schemas/create-item.json';
 import updateItemSchema from '../schemas/update-item.json';
 
-import { ItemService, Dimensions } from '../types';
-import { ITEM_API_PATH } from '../../../../constants';
+import { ItemService, Dimensions, EventService } from '../types';
+import { ITEM_API_PATH, EVENT_API_PATH } from '../../../../constants';
 
 const blockUserFromAccess = (input) => {
     const { ctx, clearance, message } = input;
@@ -31,11 +31,13 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
     async createNewSupplyChainItem(ctx) {
         try {
             const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
+            const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
 
             const auth = get(ctx.state.auth, 'credentials');
             const clearance = get(auth, 'clearance');
             const requestBody = get(ctx.request, 'body');
             const dimensions: Dimensions = get(requestBody, 'dimensions');
+
             const volume = itemService.calculateVolume(dimensions).value;
             const trackingId = itemService.generateTrackingId();
 
@@ -68,9 +70,25 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                 populate: ['category', 'weight', 'dimensions', 'handling']
             });
 
+            const itemCreated = get(newItem, 'id');
+            const itemCreatedId = get(newItem, 'trackingId');
+
+            if (itemCreated) {
+                await eventService.createAndPublishEvent({
+                    item: newItem,
+                    queue: 'new-product-created',
+                    stage: 'warehousing',
+                    status: 'stocked'
+                });
+            }
+
+            // ctx.body = {
+            //     success: true,
+            //     item: newItem
+            // };
             ctx.body = {
                 success: true,
-                item: newItem
+                item: 'newItem'
             };
         } catch (err) {
             ctx.body = err;
@@ -130,18 +148,20 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
     },
     async addSupplyChainItemEvent(ctx) {
         try {
-            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
-            const { connection, channel } = await itemService.connectToRabbitMq();
+            const amqpUrl = 'amqp://localhost';
+
+            const eventService: EventService = strapi.service(`${ITEM_API_PATH}`);
+            const { connection, channel } = await eventService.connectToRabbitMq(amqpUrl);
             // Create event entry and link it to this item
             // Emit an event to the topic with the new event details
-            await itemService.publishMessage({
+            await eventService.publishMessage({
                 channel,
                 queueName: 'test_queue',
                 message: {
                     name: 'ungowami'
                 },
             })
-            await itemService.consumeMessages({
+            await eventService.consumeMessages({
                 channel,
                 queueName: 'test_queue',
                 onMessageReceived: () => {

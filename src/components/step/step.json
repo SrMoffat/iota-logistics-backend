@@ -11,10 +11,34 @@
       "type": "string"
     },
     "name": {
-      "type": "string"
-    },
-    "position": {
-      "type": "integer"
+      "type": "enumeration",
+      "enum": [
+        "stocked",
+        "out of stock",
+        "order received",
+        "order validation",
+        "order picking",
+        "order packing",
+        "ready for dispatch",
+        "shipment created",
+        "ready for pickup",
+        "in transit",
+        "customs clearance",
+        "delayed",
+        "en route",
+        "out for delivery",
+        "delivery attempted",
+        "delivery rescheduled",
+        "delivered",
+        "return initiated",
+        "return shipment",
+        "return received",
+        "refund issued",
+        "lost",
+        "damaged",
+        "archived",
+        "completed"
+      ]
     }
   }
 }

@@ -5,7 +5,6 @@
 import * as crypto from 'crypto';
 
 import Ajv from 'ajv';
-import amqp from 'amqplib';
 import { factories } from '@strapi/strapi';
 
 import { ITEM_API_PATH } from '../../../../constants';
@@ -61,19 +60,6 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => (
         } catch (error) {
             throw new Error(`Error validating request: ${error}`);
         };
-    },
-    async connectToRabbitMq() {
-        let connection;
-        try {
-            connection = await amqp.connect('amqp://localhost');
-            const channel = await connection.createChannel();
-            return { connection, channel };
-        } catch (error) {
-            console.log('New Galctica-error-->', error)
-            throw new Error(`Error connecting to RabbitMQ: ${error}`);
-        } finally {
-            // if (connection) await connection.close();
-        }
     },
     async publishMessage(details: PublishMessageInput) {
         try {

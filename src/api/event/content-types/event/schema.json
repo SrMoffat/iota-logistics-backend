@@ -21,11 +21,47 @@
       "target": "api::item.item",
       "inversedBy": "events"
     },
-    "milestone": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::stage.stage",
-      "inversedBy": "events"
+    "stage": {
+      "type": "enumeration",
+      "enum": [
+        "warehousing",
+        "processing",
+        "transit",
+        "delivery",
+        "returned",
+        "recovered",
+        "termination"
+      ]
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "stocked",
+        "out of stock",
+        "order received",
+        "order validation",
+        "order picking",
+        "order packing",
+        "ready for dispatch",
+        "shipment created",
+        "ready for pickup",
+        "in transit",
+        "customs clearance",
+        "delayed",
+        "en route",
+        "out for delivery",
+        "delivery attempted",
+        "delivery rescheduled",
+        "delivered",
+        "return initiated",
+        "return shipment",
+        "return received",
+        "refund issued",
+        "lost",
+        "damaged",
+        "archived",
+        "completed"
+      ]
     }
   }
 }
