@@ -13,6 +13,8 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
         try {
             const itemId = get(ctx.params, 'id');
             const requestBody = get(ctx.request, 'body');
+            const stage = get(requestBody, 'stage');
+            const status = get(requestBody, 'status');
 
             const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
                 populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
@@ -28,8 +30,8 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
             const data = {
                 item: itemId,
                 data: entryExists,
-                stage: 'stage from args',
-                status: 'stage from args',
+                stage,
+                status,
             };
             const newEvent = await strapi.entityService.create(`${EVENT_API_PATH}`, {
                 data,
@@ -37,6 +39,7 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
             });
 
             console.log('Ebunmandini', entryExists);
+            console.log('newEvent', newEvent);
 
             // const { connection, channel } = await eventService.connectToRabbitMq(amqpUrl);
             // // Create event entry and link it to this item
