@@ -2,11 +2,12 @@
  * event service
  */
 
+import { get } from 'lodash';
 import amqp, { Connection, Channel } from 'amqplib';
 import { factories, Strapi } from '@strapi/strapi';
 
 import { EVENT_API_PATH } from '../../../../constants';
-import { 
+import {
     Event,
     EventService,
     PublishMessageInput,
@@ -35,8 +36,8 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
             const data = {
                 item: item.id,
                 data: item,
-                stage,
-                status,
+                stage: stage.id,
+                status: status.id,
             };
             const newEvent = await strapi.entityService.create(`${EVENT_API_PATH}`, {
                 data,
@@ -82,10 +83,12 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
             const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
             const dbEevent = await eventService.createEvent(details)
             const { channel } = await eventService.connectToRabbitMq(amqpUrl);
+            const stage = get(details.stage, 'name')
+            const status = get(details.status, 'name')
             await eventService.publishMessage({
                 channel,
                 queueName: details.queue,
-                message: details,
+                message: { ...details, stage, status }
             })
             return dbEevent
         } catch (error) {
