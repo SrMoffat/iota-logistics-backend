@@ -5,14 +5,30 @@
 import { get } from 'lodash';
 import { factories, Strapi } from '@strapi/strapi'
 
-import { EVENT_API_PATH } from '../../../../constants';
+import { EventService } from '../types';
+import { EVENT_API_PATH, ITEM_API_PATH } from '../../../../constants';
 
 export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
     async addSupplyChainItemEvent(ctx) {
         try {
-            // const amqpUrl = 'amqp://localhost';
+            const itemId = get(ctx.params, 'id');
 
-            // const eventService: EventService = strapi.service(`${ITEM_API_PATH}`);
+            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
+                populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
+            });
+
+            if (!entryExists) {
+                return ctx.notFound('Supply chain item not found');
+            }
+
+            const amqpUrl = 'amqp://localhost';
+            const eventService: EventService = strapi.service(`${ITEM_API_PATH}`);
+
+
+
+            console.log('Ebunmandini', entryExists);
+            
+
             // const { connection, channel } = await eventService.connectToRabbitMq(amqpUrl);
             // // Create event entry and link it to this item
             // // Emit an event to the topic with the new event details

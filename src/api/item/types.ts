@@ -1,5 +1,3 @@
-import { Channel, Connection } from 'amqplib';
-
 export type Dimensions = {
     unit: string;
     width: string;
@@ -85,16 +83,6 @@ export type RabbitMQConnection = {
     close: () => any;
 };
 
-export type PublishMessageInput = {
-    channel: Channel;
-    queueName: string;
-    message: Object;
-};
-export type ConsumerMessageInput = {
-    channel: Channel;
-    queueName: string;
-    onMessageReceived: () => void;
-};
 
 export type Item = {
     id: number;
@@ -117,23 +105,6 @@ export type Item = {
     handling: Handling & { id: number; }
 }
 
-export type Event = {
-    id: number;
-    data: Item;
-    stage: string;
-    status: string;
-    createdAt?: string;
-    updatedAt?: string;
-    item: Item;
-};
-
-export type CreateAndPublishEventInput = {
-    item: Item;
-    queue: string;
-    stage: string;
-    status: string;
-};
-
 export type ItemDetails = Omit<ItemRequestBody, 'compliance'> & {
     trackingId: string;
     uuid: string;
@@ -145,14 +116,6 @@ export type ItemDetails = Omit<ItemRequestBody, 'compliance'> & {
 export type UpdateItemInput = {
     trackingId: string;
 
-};
-
-export type EventService = {
-    publishMessage: (data: PublishMessageInput) => Promise<string>;
-    consumeMessages: (data: ConsumerMessageInput) => Promise<string>;
-    createEvent: (details: CreateAndPublishEventInput) => Promise<Event>;
-    createAndPublishEvent: (details: CreateAndPublishEventInput) => Promise<void>;
-    connectToRabbitMq: (url: string) => Promise<{ connection: Connection, channel: Channel }>;
 };
 
 export type ItemService = {

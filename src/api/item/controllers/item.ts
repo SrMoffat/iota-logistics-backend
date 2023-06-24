@@ -8,7 +8,8 @@ import { factories, Strapi } from '@strapi/strapi';
 import createItemSchema from '../schemas/create-item.json';
 import updateItemSchema from '../schemas/update-item.json';
 
-import { ItemService, Dimensions, EventService, ItemRequestBody } from '../types';
+import { EventService } from '../../event/types';
+import { ItemService, Dimensions, ItemRequestBody } from '../types';
 import {
     STAGES,
     STATUSES,
