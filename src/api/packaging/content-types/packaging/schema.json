@@ -4,7 +4,8 @@
   "info": {
     "singularName": "packaging",
     "pluralName": "packagings",
-    "displayName": "packaging"
+    "displayName": "Packaging",
+    "description": ""
   },
   "options": {
     "draftAndPublish": false
