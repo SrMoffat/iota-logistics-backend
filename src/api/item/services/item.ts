@@ -5,19 +5,31 @@
 import * as crypto from 'crypto';
 
 import Ajv from 'ajv';
-import { factories } from '@strapi/strapi';
+import { factories, Strapi } from '@strapi/strapi';
 
 import { ITEM_API_PATH } from '../../../../constants';
 import {
     Dimensions,
+    ItemDetails,
     VolumeDetails,
     ItemRequestBody,
     BlockClearanceInput,
 } from '../types';
 
-let queue = 'test_queue';
 
-export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => ({
+
+export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
+    async createItem(details: ItemDetails) {
+        try {
+            const newItem = await strapi.entityService.create(`${ITEM_API_PATH}`, {
+                data: details,
+                populate: ['category', 'weight', 'dimensions', 'handling']
+            });
+            return newItem
+        } catch (error) {
+            throw new Error(`Error creating item: ${error}`);
+        }
+    },
     generateTrackingId() {
         try {
             return `IOTA#${crypto.randomBytes(4).toString("hex")}`;
@@ -51,7 +63,6 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }) => (
         try {
             const { role, message } = input;
             const isUser = role === 'user'
-
             if (isUser) {
                 throw new Error(message);
             }

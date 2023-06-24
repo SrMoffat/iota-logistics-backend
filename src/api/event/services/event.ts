@@ -32,14 +32,12 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
     async createEvent(details: CreateAndPublishEventInput): Promise<Event> {
         try {
             const { item, stage, status } = details;
-
             const data = {
                 item: item.id,
                 data: item,
                 stage,
                 status,
             };
-
             const newEvent = await strapi.entityService.create(`${EVENT_API_PATH}`, {
                 data,
                 populate: ['item']
@@ -65,7 +63,6 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
         try {
             const { channel: messageChannel, queueName, onMessageReceived } = details;
             await messageChannel.assertQueue(queueName);
-
             messageChannel.consume(queueName, (message) => {
                 const messageContent = JSON.parse(message.content.toString());
                 messageChannel.ack(message);
@@ -75,7 +72,6 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
                 })
                 onMessageReceived()
             });
-
         } catch (error) {
             throw new Error(`Error consuming message: ${error}`);
         }
@@ -84,17 +80,13 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
         try {
             const amqpUrl = 'amqp://localhost';
             const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
-
             const dbEevent = await eventService.createEvent(details)
-
             const { channel } = await eventService.connectToRabbitMq(amqpUrl);
-
             await eventService.publishMessage({
                 channel,
                 queueName: details.queue,
                 message: details,
             })
-
             return dbEevent
         } catch (error) {
             throw new Error(`Error creating and publishing event: ${error}`);

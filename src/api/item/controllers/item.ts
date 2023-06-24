@@ -8,7 +8,7 @@ import { factories, Strapi } from '@strapi/strapi';
 import createItemSchema from '../schemas/create-item.json';
 import updateItemSchema from '../schemas/update-item.json';
 
-import { ItemService, Dimensions, EventService } from '../types';
+import { ItemService, Dimensions, EventService, ItemRequestBody } from '../types';
 import {
     STAGES,
     STATUSES,
@@ -38,21 +38,17 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
         try {
             const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
             const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
-
             const auth = get(ctx.state.auth, 'credentials');
             const clearance = get(auth, 'clearance');
-            const requestBody = get(ctx.request, 'body');
+            const requestBody: ItemRequestBody = get(ctx.request, 'body');
             const dimensions: Dimensions = get(requestBody, 'dimensions');
-
             const volume = itemService.calculateVolume(dimensions).value;
             const trackingId = itemService.generateTrackingId();
-
             blockUserFromAccess({
                 ctx,
                 clearance,
                 message: 'User should only use order route'
             });
-
             validateRequest({
                 ctx,
                 body: requestBody,
@@ -60,8 +56,7 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                 schema: createItemSchema,
                 message: 'Malformed create item request body'
             });
-
-            const data = {
+            const newItem = await itemService.createItem({
                 ...omit(requestBody, 'compliance'),
                 trackingId,
                 uuid: uuid(),
@@ -69,15 +64,8 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                     ...dimensions,
                     volume
                 },
-            };
-
-            const newItem = await strapi.entityService.create(`${ITEM_API_PATH}`, {
-                data,
-                populate: ['category', 'weight', 'dimensions', 'handling']
-            });
-
+            })
             const itemCreated = get(newItem, 'id');
-
             if (itemCreated) {
                 await eventService.createAndPublishEvent({
                     item: newItem,
@@ -86,7 +74,6 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                     status: STATUSES.STOCKED
                 });
             }
-
             ctx.body = {
                 success: true,
                 item: newItem
