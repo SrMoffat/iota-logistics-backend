@@ -85,18 +85,15 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
     async updateSupplyChainItem(ctx) {
         try {
             const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
-
             const itemId = get(ctx.params, 'id');
             const auth = get(ctx.state.auth, 'credentials');
             const clearance = get(auth, 'clearance');
             const requestBody = get(ctx.request, 'body');
-
             blockUserFromAccess({
                 ctx,
                 clearance,
                 message: 'User should only use order route'
             });
-
             validateRequest({
                 ctx,
                 body: requestBody,
@@ -104,31 +101,14 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                 schema: updateItemSchema,
                 message: 'Malformed update item request body'
             });
-
-            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId);
-
-            if (!entryExists) {
-                return ctx.notFound('Supply chain item not found');
-            } else {
-                const dimensions: Dimensions = get(requestBody, 'dimensions');
-                const volume = itemService.calculateVolume(dimensions).value;
-
-                const data = {
-                    ...omit(requestBody, 'compliance'),
-                    dimensions: {
-                        ...dimensions,
-                        volume
-                    },
-                }
-                const updatedItem = await strapi.entityService.update(`${ITEM_API_PATH}`, itemId, {
-                    data,
-                    populate: ['category', 'weight', 'dimensions', 'handling']
-                });
-
-                ctx.body = {
-                    success: true,
-                    item: updatedItem
-                };
+            const updatedItem = await itemService.updateItem({
+                id: itemId,
+                ctx,
+                body: requestBody,
+            });
+            ctx.body = {
+                success: true,
+                item: updatedItem
             };
         } catch (err) {
             ctx.body = err;

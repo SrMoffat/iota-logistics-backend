@@ -5,17 +5,18 @@
 import * as crypto from 'crypto';
 
 import Ajv from 'ajv';
+import { get, omit } from 'lodash';
 import { factories, Strapi } from '@strapi/strapi';
 
 import { ITEM_API_PATH } from '../../../../constants';
 import {
     Dimensions,
     ItemDetails,
+    ItemService,
     VolumeDetails,
     ItemRequestBody,
     BlockClearanceInput,
 } from '../types';
-
 
 
 export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
@@ -26,6 +27,34 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
                 populate: ['category', 'weight', 'dimensions', 'handling']
             });
             return newItem
+        } catch (error) {
+            throw new Error(`Error creating item: ${error}`);
+        }
+    },
+    async updateItem(details) {
+        try {
+            const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
+            const { id, ctx, body } = details;
+            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, id);
+            if (!entryExists) {
+                return ctx.notFound('Supply chain item not found');
+            } else {
+                const dimensions: Dimensions = get(body, 'dimensions');
+                const volume = itemService.calculateVolume(dimensions).value;
+                const data = {
+                    ...omit(body, 'compliance'),
+                    dimensions: {
+                        ...dimensions,
+                        volume
+                    },
+                }
+                const updatedItem = await strapi.entityService.update(`${ITEM_API_PATH}`, entryExists.id, {
+                    data,
+                    populate: ['category', 'weight', 'dimensions', 'handling']
+                });
+
+                return updatedItem
+            };
         } catch (error) {
             throw new Error(`Error creating item: ${error}`);
         }

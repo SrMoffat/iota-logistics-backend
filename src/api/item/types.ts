@@ -142,6 +142,11 @@ export type ItemDetails = Omit<ItemRequestBody, 'compliance'> & {
     };
 };
 
+export type UpdateItemInput = {
+    trackingId: string;
+
+};
+
 export type EventService = {
     publishMessage: (data: PublishMessageInput) => Promise<string>;
     consumeMessages: (data: ConsumerMessageInput) => Promise<string>;
@@ -153,6 +158,7 @@ export type EventService = {
 export type ItemService = {
     generateTrackingId(): string;
     createItem: (details: ItemDetails) => Promise<Item>;
+    updateItem: (details) => Promise<Item>;
     blockClearanceFromAccess(details: BlockClearanceInput): string;
     validateRequest(request: ItemRequestBody, schema: Object): Boolean;
     calculateVolume(dimensions: Dimensions): { value: string, representation: string };
