@@ -3,5 +3,6 @@
  */
 
 import { factories } from '@strapi/strapi';
+import { STATUS_API_PATH } from '../../../../constants';
 
-export default factories.createCoreService('api::status.status');
+export default factories.createCoreService(`${STATUS_API_PATH}`);

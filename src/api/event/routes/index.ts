@@ -13,7 +13,7 @@ export default {
       {
         method: 'GET',
         path: '/supply-items/:id/events/recent/:count',
-        handler: 'event.getSupplyChainItemMostRecentEvent'
+        handler: 'event.getSupplyChainItemMostRecentEvents'
       },
     ]
   };

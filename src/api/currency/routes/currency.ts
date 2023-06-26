@@ -3,5 +3,6 @@
  */
 
 import { factories } from '@strapi/strapi';
+import { CURRENCY_API_PATH } from '../../../../constants';
 
-export default factories.createCoreRouter('api::currency.currency');
+export default factories.createCoreRouter(`${CURRENCY_API_PATH}`);

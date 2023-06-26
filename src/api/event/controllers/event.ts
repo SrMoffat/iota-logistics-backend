@@ -63,21 +63,28 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
             ctx.body = err;
         };
     },
-    async getSupplyChainItemMostRecentEvent(ctx) {
+    async getSupplyChainItemMostRecentEvents(ctx) {
         try {
-            const auth = get(ctx.state.auth, 'credentials');
-            const params = get(ctx.params, 'id');
-            const requestBody = get(ctx.request, 'body') as Object;
+            const itemId = get(ctx.params, 'id');
+            const count = get(ctx.params, 'count');
 
-            console.log({
-                auth,
-                params,
-                requestBody
-            })
-            ctx.body = {
-                success: true,
-                message: "Get item most recent event controller finished successfully"
-            };
+            console.log('Count', count);
+            console.log('itemId', itemId);
+
+            // const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
+            //     populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
+            // });
+            // if (!entryExists) {
+            //     return ctx.notFound('Supply chain item not found');
+            // }
+            // const events = await strapi.db.query(`${EVENT_API_PATH}`).findMany({
+            //     populate: ['status', 'stage'],
+            // });
+            // const results = events.filter(event => event.data.id === entryExists.id)
+            // ctx.body = {
+            //     success: true,
+            //     events: results.reverse()
+            // };
         } catch (err) {
             ctx.body = err;
         };

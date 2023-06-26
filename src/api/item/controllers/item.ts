@@ -8,15 +8,8 @@ import { factories, Strapi } from '@strapi/strapi';
 import createItemSchema from '../schemas/create-item.json';
 import updateItemSchema from '../schemas/update-item.json';
 
-import { EventService } from '../../event/types';
+import { ITEM_API_PATH } from '../../../../constants';
 import { ItemService, Dimensions, ItemRequestBody } from '../types';
-import {
-    STAGES,
-    STATUSES,
-    ITEM_API_PATH,
-    EVENT_API_PATH,
-    NEW_PRODUCT_QUEUE_NAME,
-} from '../../../../constants';
 
 const blockUserFromAccess = (input) => {
     const { ctx, clearance, message } = input;
@@ -32,11 +25,6 @@ const validateRequest = (input) => {
     if (!isValid) {
         return ctx.badRequest(message);
     };
-};
-
-const getWarehousingStageDetails = (input) => {
-    const { ctx } = input;
-
 };
 
 export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
