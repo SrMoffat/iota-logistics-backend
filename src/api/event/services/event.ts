@@ -51,6 +51,7 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
     },
     async publishMessage(details: PublishMessageInput): Promise<void> {
         try {
+            console.log("details", details);
             const { channel: messageChannel, queueName, message } = details;
             await messageChannel.assertQueue(queueName);
             messageChannel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)));
@@ -74,6 +75,7 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
                 onMessageReceived()
             });
         } catch (error) {
+            console.log('NewAAAA-->', error)
             throw new Error(`Error consuming message: ${error}`);
         }
     },
@@ -89,7 +91,7 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
                 channel,
                 queueName: details.queue,
                 message: { ...details, stage, status }
-            })
+            });
             return dbEevent
         } catch (error) {
             throw new Error(`Error creating and publishing event: ${error}`);
