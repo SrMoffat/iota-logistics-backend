@@ -67,24 +67,20 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
         try {
             const itemId = get(ctx.params, 'id');
             const count = get(ctx.params, 'count');
-
-            console.log('Count', count);
-            console.log('itemId', itemId);
-
-            // const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
-            //     populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
-            // });
-            // if (!entryExists) {
-            //     return ctx.notFound('Supply chain item not found');
-            // }
-            // const events = await strapi.db.query(`${EVENT_API_PATH}`).findMany({
-            //     populate: ['status', 'stage'],
-            // });
-            // const results = events.filter(event => event.data.id === entryExists.id)
-            // ctx.body = {
-            //     success: true,
-            //     events: results.reverse()
-            // };
+            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
+                populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
+            });
+            if (!entryExists) {
+                return ctx.notFound('Supply chain item not found');
+            }
+            const events = await strapi.db.query(`${EVENT_API_PATH}`).findMany({
+                populate: ['status', 'stage'],
+            });
+            const results = events.filter(event => event.data.id === entryExists.id)
+            ctx.body = {
+                success: true,
+                events: results.slice(0, count)
+            };
         } catch (err) {
             ctx.body = err;
         };
