@@ -5,6 +5,7 @@
 import * as crypto from 'crypto';
 
 import Ajv from 'ajv';
+import utils from '@strapi/utils'
 import { get, omit } from 'lodash';
 import { factories, Strapi } from '@strapi/strapi';
 
@@ -18,6 +19,8 @@ import {
     ItemRequestBody,
     BlockClearanceInput,
 } from '../types';
+
+const { ApplicationError } = utils.errors;
 
 
 export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
@@ -59,7 +62,8 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
             }
             return newItem
         } catch (error) {
-            throw new Error(`Error creating item: ${error}`);
+            console.error(`Error creating item: ${error}`);
+            throw new ApplicationError('Something went wrong:createItem', { error });
         }
     },
     async updateItem(details) {
@@ -87,14 +91,14 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
             });
             return updatedItem
         } catch (error) {
-            throw new Error(`Error creating item: ${error}`);
+            throw new ApplicationError('Something went wrong:updateItem', { error });
         }
     },
     generateTrackingId() {
         try {
             return `IOTA#${crypto.randomBytes(4).toString("hex")}`;
         } catch (error) {
-            throw new Error(`Error generating trackingId: ${error}`);
+            throw new ApplicationError('Something went wrong:generateTrackingId', { error });
         }
     },
     calculateVolume(dimensions: Dimensions): VolumeDetails {
@@ -107,7 +111,7 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
                 representation: `${value} ${unit}\u00B3`
             };
         } catch (error) {
-            throw new Error(`Error calculating volume: ${error}`);
+            throw new ApplicationError('Something went wrong:calculateVolume', { error });
         };
     },
     validateRequest(request: ItemRequestBody, schema: Object): Boolean {
@@ -116,7 +120,7 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
             const validate = ajv.compile(schema);
             return validate(request);
         } catch (error) {
-            throw new Error(`Error validating request: ${error}`);
+            throw new ApplicationError('Something went wrong:validateRequest', { error });
         };
     },
     blockClearanceFromAccess(input: BlockClearanceInput) {
@@ -124,10 +128,10 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
             const { role, message } = input;
             const isUser = role === 'user'
             if (isUser) {
-                throw new Error(message);
+                throw new ApplicationError(message, { message });
             }
         } catch (error) {
-            throw new Error(`Error validating request: ${error}`);
+            throw new ApplicationError('Something went wrong:blockClearanceFromAccess', { error });
         };
     },
 }));

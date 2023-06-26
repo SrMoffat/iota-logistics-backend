@@ -17,6 +17,7 @@ const blockUserFromAccess = (input) => {
     if (isUser) {
         return ctx.forbidden(message);
     }
+    return;
 };
 
 const validateRequest = (input) => {
@@ -25,6 +26,7 @@ const validateRequest = (input) => {
     if (!isValid) {
         return ctx.badRequest(message);
     };
+    return;
 };
 
 export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
@@ -58,10 +60,10 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                     volume
                 },
             })
-            ctx.body = {
-                success: true,
-                item: newItem
-            };
+            // ctx.body = {
+            //     success: true,
+            //     item: newItem
+            // };
         } catch (err) {
             ctx.body = err;
         };
