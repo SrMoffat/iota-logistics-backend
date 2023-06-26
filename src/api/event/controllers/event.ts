@@ -8,6 +8,20 @@ import { factories, Strapi } from '@strapi/strapi'
 import { EventService } from '../types';
 import { EVENT_API_PATH, ITEM_API_PATH } from '../../../../constants';
 
+const getItemEvents = async (details) => {
+    const { id, ctx, strapi } = details;
+    const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, id, {
+        populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
+    });
+    if (!entryExists) {
+        return ctx.notFound('Supply chain item not found');
+    };
+    const events = await strapi.db.query(`${EVENT_API_PATH}`).findMany({
+        populate: ['status', 'stage'],
+    });
+    return events;
+}
+
 export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
     async addSupplyChainItemEvent(ctx) {
         try {
@@ -45,16 +59,12 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
     async getAllSupplyChainItemEvents(ctx) {
         try {
             const itemId = get(ctx.params, 'id');
-            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
-                populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
+            const events = await getItemEvents({
+                id: itemId,
+                ctx,
+                strapi
             });
-            if (!entryExists) {
-                return ctx.notFound('Supply chain item not found');
-            }
-            const events = await strapi.db.query(`${EVENT_API_PATH}`).findMany({
-                populate: ['status', 'stage'],
-            });
-            const results = events.filter(event => event.data.id === entryExists.id)
+            const results = events.filter(event => `${event.data.id}` === `${itemId}`);
             ctx.body = {
                 success: true,
                 events: results.reverse()
@@ -67,16 +77,12 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
         try {
             const itemId = get(ctx.params, 'id');
             const count = get(ctx.params, 'count');
-            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
-                populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
+            const events = await getItemEvents({
+                id: itemId,
+                ctx,
+                strapi
             });
-            if (!entryExists) {
-                return ctx.notFound('Supply chain item not found');
-            }
-            const events = await strapi.db.query(`${EVENT_API_PATH}`).findMany({
-                populate: ['status', 'stage'],
-            });
-            const results = events.filter(event => event.data.id === entryExists.id)
+            const results = events.filter(event => `${event.data.id}` === `${itemId}`);
             ctx.body = {
                 success: true,
                 events: results.slice(0, count)
@@ -85,4 +91,40 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
             ctx.body = err;
         };
     },
+    async getAllItemQueueEvents(ctx) {
+        try {
+            const itemId = get(ctx.params, 'id');
+            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
+                populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
+            });
+            if (!entryExists) {
+                return ctx.notFound('Supply chain item not found');
+            };
+            const onMessageReceived = (message: Object) => {
+                console.log('Queue message', `${entryExists.trackingId}: ${message}`)
+            };
+            const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
+            await eventService.consumeMessages({
+                queue: get(entryExists, 'trackingId'),
+                onMessageReceived
+            });
+            // const eventDetails = await eventService.createAndPublishEvent({
+            //     item: entryExists,
+            //     queue: get(entryExists, 'trackingId'),
+            //     stage: {
+            //         id: get(stage, 'id'),
+            //         name: get(stage, 'name'),
+            //     },
+            //     status: {
+            //         id: get(status, 'id'),
+            //         name: get(status, 'name'),
+            //     }
+            // });
+
+        } catch (error){
+            console.log('getAllItemQueueEvents', error);
+            ctx.body = error;
+        }
+    },
+    async getRecentItemQueueEvents(ctx) {},
 }));

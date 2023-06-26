@@ -226,7 +226,7 @@ export default factories.createCoreController(`${STAGE_API_PATH}`, ({ strapi }: 
             }
             ctx.body = {
                 success: true,
-                message: "Seed was successful for Stage, Status, and Currency models" 
+                message: "Seed was successful for Stage, Status, Category and Currency models" 
             };
         } catch (error) {
             console.log('error', error)
