@@ -14,9 +14,9 @@ export type PublishMessageInput = {
 };
 
 export type ConsumerMessageInput = {
-    channel: Channel;
-    queueName: string;
-    onMessageReceived: () => void;
+    // channel: Channel;
+    queue: string;
+    onMessageReceived: (details: Object) => void;
 };
 
 export type CreateAndPublishEventInput = {

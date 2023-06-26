@@ -15,6 +15,11 @@ export default {
         path: '/supply-items/:id/events/recent/:count',
         handler: 'event.getSupplyChainItemMostRecentEvents'
       },
+      {
+        method: 'GET',
+        path: '/supply-items/:id/queue-events',
+        handler: 'event.getAllItemQueueEvents'
+      }
     ]
   };
   
