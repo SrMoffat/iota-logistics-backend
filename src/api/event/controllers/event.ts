@@ -101,30 +101,20 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
                 return ctx.notFound('Supply chain item not found');
             };
             const onMessageReceived = (message: Object) => {
-                console.log('Queue message', `${entryExists.trackingId}: ${message}`)
+                console.log('Queue message', {
+                    entryExists,
+                    message
+                })
             };
             const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
             await eventService.consumeMessages({
+                // queue: 'new-product-created',
                 queue: get(entryExists, 'trackingId'),
                 onMessageReceived
             });
-            // const eventDetails = await eventService.createAndPublishEvent({
-            //     item: entryExists,
-            //     queue: get(entryExists, 'trackingId'),
-            //     stage: {
-            //         id: get(stage, 'id'),
-            //         name: get(stage, 'name'),
-            //     },
-            //     status: {
-            //         id: get(status, 'id'),
-            //         name: get(status, 'name'),
-            //     }
-            // });
-
         } catch (error){
             console.log('getAllItemQueueEvents', error);
             ctx.body = error;
         }
-    },
-    async getRecentItemQueueEvents(ctx) {},
+    }
 }));

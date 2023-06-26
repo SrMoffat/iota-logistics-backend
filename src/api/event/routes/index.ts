@@ -19,12 +19,7 @@ export default {
         method: 'GET',
         path: '/supply-items/:id/queue-events',
         handler: 'event.getAllItemQueueEvents'
-      },
-      {
-        method: 'GET',
-        path: '/supply-items/:id/queue-events/recent/:count',
-        handler: 'event.getRecentItemQueueEvents'
-      },
+      }
     ]
   };
   

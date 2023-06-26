@@ -4,4 +4,6 @@
 
 import { factories } from '@strapi/strapi';
 
-export default factories.createCoreRouter('api::item.item');
+import { ITEM_API_PATH } from '../../../../constants';
+
+export default factories.createCoreRouter(`${ITEM_API_PATH}`);

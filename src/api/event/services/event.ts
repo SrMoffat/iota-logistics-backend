@@ -3,6 +3,7 @@
  */
 
 import { get } from 'lodash';
+import utils from '@strapi/utils';
 import amqp, { Connection, Channel } from 'amqplib';
 import { factories, Strapi } from '@strapi/strapi';
 
@@ -17,6 +18,8 @@ import {
 
 const amqpUrl = 'amqp://localhost';
 
+const { ApplicationError } = utils.errors;
+
 export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
     async connectToRabbitMq(url: string): Promise<{ connection: Connection; channel: Channel; }> {
         let connection: Connection;
@@ -25,8 +28,7 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
             const channel = await connection.createChannel();
             return { connection, channel };
         } catch (error) {
-            console.log('New Galctica-error-->', error)
-            throw new Error(`Error connecting to RabbitMQ: ${error}`);
+            throw new ApplicationError('Something went wrong:connectToRabbitMq', { error });
         } finally {
             // if (connection) await connection.close();
         }
@@ -46,8 +48,7 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
             });
             return newEvent
         } catch (error) {
-            console.log('error', error)
-            throw new Error(`Error creating event: ${error}`);
+            throw new ApplicationError('Something went wrong:createEvent', { error });
         }
     },
     async publishMessage(details: PublishMessageInput): Promise<void> {
@@ -57,8 +58,7 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
             messageChannel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)));
             // await messageChannel.close();
         } catch (error) {
-            console.log('New AI-error-->', error)
-            throw new Error(`Error publishing message: ${error}`);
+            throw new ApplicationError('Something went wrong:publishMessage', { error });
         }
     },
     async consumeMessages(details: ConsumerMessageInput) {
@@ -67,19 +67,14 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
             const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
             const { channel } = await eventService.connectToRabbitMq(amqpUrl);
             await channel.assertQueue(queue);
-
             channel.consume(queue, (message) => {
                 const messageContent = JSON.parse(message.content.toString());
                 channel.ack(message);
-                console.log({
-                    message,
-                    messageContent
-                })
                 onMessageReceived(messageContent)
             });
+            await channel.close();
         } catch (error) {
-            console.log('NewAAAA-->', error)
-            throw new Error(`Error consuming message: ${error}`);
+            throw new ApplicationError('Something went wrong:consumeMessages', { error });
         }
     },
     async createAndPublishEvent(details: CreateAndPublishEventInput): Promise<Event> {
@@ -96,7 +91,7 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
             });
             return dbEevent
         } catch (error) {
-            throw new Error(`Error creating and publishing event: ${error}`);
+            throw new ApplicationError('Something went wrong:createAndPublishEvent', { error });
         }
     }
 }));

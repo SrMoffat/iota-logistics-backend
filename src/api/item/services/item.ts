@@ -5,12 +5,18 @@
 import * as crypto from 'crypto';
 
 import Ajv from 'ajv';
-import utils from '@strapi/utils'
+import utils from '@strapi/utils';
 import { get, omit } from 'lodash';
 import { factories, Strapi } from '@strapi/strapi';
 
 import { EventService } from '../../event/types';
-import { ITEM_API_PATH, EVENT_API_PATH, NEW_PRODUCT_QUEUE_NAME, STAGES, STATUSES, STAGE_API_PATH } from '../../../../constants';
+import {
+    ITEM_API_PATH,
+    STAGE_API_PATH,
+    EVENT_API_PATH,
+    STAGES, STATUSES,
+    NEW_PRODUCT_QUEUE_NAME,
+} from '../../../../constants';
 import {
     Dimensions,
     ItemDetails,
@@ -21,7 +27,6 @@ import {
 } from '../types';
 
 const { ApplicationError } = utils.errors;
-
 
 export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
     async createItem(details: ItemDetails) {
@@ -87,7 +92,6 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
             const updatedItem = await strapi.entityService.update(`${ITEM_API_PATH}`, entryExists.id, {
                 data,
                 populate: '*'
-                // populate: ['category', 'weight', 'dimensions', 'handling']
             });
             return updatedItem
         } catch (error) {

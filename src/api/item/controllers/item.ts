@@ -60,10 +60,10 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                     volume
                 },
             })
-            // ctx.body = {
-            //     success: true,
-            //     item: newItem
-            // };
+            ctx.body = {
+                success: true,
+                item: newItem
+            };
         } catch (err) {
             ctx.body = err;
         };
