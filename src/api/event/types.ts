@@ -2,6 +2,11 @@ import { Channel, Connection } from 'amqplib';
 
 import { Item } from '../item/types';
 
+export type StageOrStatus = {
+    id: string;
+    name: string;
+};
+
 export type PublishMessageInput = {
     channel: Channel;
     queueName: string;
@@ -17,8 +22,8 @@ export type ConsumerMessageInput = {
 export type CreateAndPublishEventInput = {
     item: Item;
     queue: string;
-    stage: string;
-    status: string;
+    stage: StageOrStatus;
+    status: StageOrStatus;
 };
 
 export type Event = {

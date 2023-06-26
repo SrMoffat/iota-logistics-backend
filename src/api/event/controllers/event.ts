@@ -12,43 +12,31 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
     async addSupplyChainItemEvent(ctx) {
         try {
             const itemId = get(ctx.params, 'id');
-
+            const requestBody = get(ctx.request, 'body');
+            const stage = get(requestBody, 'stage');
+            const status = get(requestBody, 'status');
             const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
                 populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
             });
-
             if (!entryExists) {
                 return ctx.notFound('Supply chain item not found');
             }
-
-            const amqpUrl = 'amqp://localhost';
-            const eventService: EventService = strapi.service(`${ITEM_API_PATH}`);
-
-
-
-            console.log('Ebunmandini', entryExists);
-            
-
-            // const { connection, channel } = await eventService.connectToRabbitMq(amqpUrl);
-            // // Create event entry and link it to this item
-            // // Emit an event to the topic with the new event details
-            // await eventService.publishMessage({
-            //     channel,
-            //     queueName: 'test_queue',
-            //     message: {
-            //         name: 'ungowami'
-            //     },
-            // })
-            // await eventService.consumeMessages({
-            //     channel,
-            //     queueName: 'test_queue',
-            //     onMessageReceived: () => {
-            //         console.log('received');
-            //     }
-            // })
+            const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
+            const eventDetails = await eventService.createAndPublishEvent({
+                item: entryExists,
+                queue: get(entryExists, 'trackingId'),
+                stage: {
+                    id: get(stage, 'id'),
+                    name: get(stage, 'name'),
+                },
+                status: {
+                    id: get(status, 'id'),
+                    name: get(status, 'name'),
+                }
+            });
             ctx.body = {
                 success: true,
-                message: "Add item event controller finished successfully"
+                event: eventDetails
             };
         } catch (err) {
             ctx.body = err;
@@ -56,37 +44,42 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
     },
     async getAllSupplyChainItemEvents(ctx) {
         try {
-            const auth = get(ctx.state.auth, 'credentials');
-            const params = get(ctx.params, 'id');
-            const requestBody = get(ctx.request, 'body') as Object;
-
-            console.log({
-                auth,
-                params,
-                requestBody
-            })
+            const itemId = get(ctx.params, 'id');
+            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
+                populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
+            });
+            if (!entryExists) {
+                return ctx.notFound('Supply chain item not found');
+            }
+            const events = await strapi.db.query(`${EVENT_API_PATH}`).findMany({
+                populate: ['status', 'stage'],
+            });
+            const results = events.filter(event => event.data.id === entryExists.id)
             ctx.body = {
                 success: true,
-                message: "Get item events controller finished successfully"
+                events: results.reverse()
             };
         } catch (err) {
             ctx.body = err;
         };
     },
-    async getSupplyChainItemMostRecentEvent(ctx) {
+    async getSupplyChainItemMostRecentEvents(ctx) {
         try {
-            const auth = get(ctx.state.auth, 'credentials');
-            const params = get(ctx.params, 'id');
-            const requestBody = get(ctx.request, 'body') as Object;
-
-            console.log({
-                auth,
-                params,
-                requestBody
-            })
+            const itemId = get(ctx.params, 'id');
+            const count = get(ctx.params, 'count');
+            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
+                populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
+            });
+            if (!entryExists) {
+                return ctx.notFound('Supply chain item not found');
+            }
+            const events = await strapi.db.query(`${EVENT_API_PATH}`).findMany({
+                populate: ['status', 'stage'],
+            });
+            const results = events.filter(event => event.data.id === entryExists.id)
             ctx.body = {
                 success: true,
-                message: "Get item most recent event controller finished successfully"
+                events: results.slice(0, count)
             };
         } catch (err) {
             ctx.body = err;

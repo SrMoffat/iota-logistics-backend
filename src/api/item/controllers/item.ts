@@ -8,15 +8,8 @@ import { factories, Strapi } from '@strapi/strapi';
 import createItemSchema from '../schemas/create-item.json';
 import updateItemSchema from '../schemas/update-item.json';
 
-import { EventService } from '../../event/types';
+import { ITEM_API_PATH } from '../../../../constants';
 import { ItemService, Dimensions, ItemRequestBody } from '../types';
-import {
-    STAGES,
-    STATUSES,
-    ITEM_API_PATH,
-    EVENT_API_PATH,
-    NEW_PRODUCT_QUEUE_NAME,
-} from '../../../../constants';
 
 const blockUserFromAccess = (input) => {
     const { ctx, clearance, message } = input;
@@ -38,7 +31,6 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
     async createNewSupplyChainItem(ctx) {
         try {
             const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
-            const eventService: EventService = strapi.service(`${EVENT_API_PATH}`);
             const auth = get(ctx.state.auth, 'credentials');
             const clearance = get(auth, 'clearance');
             const requestBody: ItemRequestBody = get(ctx.request, 'body');
@@ -66,15 +58,6 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
                     volume
                 },
             })
-            const itemCreated = get(newItem, 'id');
-            if (itemCreated) {
-                await eventService.createAndPublishEvent({
-                    item: newItem,
-                    queue: NEW_PRODUCT_QUEUE_NAME,
-                    stage: STAGES.WAREHOUSING,
-                    status: STATUSES.STOCKED
-                });
-            }
             ctx.body = {
                 success: true,
                 item: newItem

@@ -2,6 +2,8 @@
  * currency controller
  */
 
-import { factories } from '@strapi/strapi'
+import { factories } from '@strapi/strapi';
 
-export default factories.createCoreController('api::currency.currency');
+import { CURRENCY_API_PATH } from '../../../../constants';
+
+export default factories.createCoreController(`${CURRENCY_API_PATH}`);
