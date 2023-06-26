@@ -44,18 +44,20 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
     },
     async getAllSupplyChainItemEvents(ctx) {
         try {
-            const auth = get(ctx.state.auth, 'credentials');
-            const params = get(ctx.params, 'id');
-            const requestBody = get(ctx.request, 'body') as Object;
-
-            console.log({
-                auth,
-                params,
-                requestBody
-            })
+            const itemId = get(ctx.params, 'id');
+            const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, itemId, {
+                populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
+            });
+            if (!entryExists) {
+                return ctx.notFound('Supply chain item not found');
+            }
+            const events = await strapi.db.query(`${EVENT_API_PATH}`).findMany({
+                populate: ['status', 'stage'],
+            });
+            const results = events.filter(event => event.data.id === entryExists.id)
             ctx.body = {
                 success: true,
-                message: "Get item events controller finished successfully"
+                events: results.reverse()
             };
         } catch (err) {
             ctx.body = err;
