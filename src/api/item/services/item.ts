@@ -52,7 +52,8 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
             });
             const itemCreated = get(newItem, 'id');
             if (itemCreated) {
-                await eventService.createAndPublishEvent({
+                //  
+                const eventDetails = await eventService.createAndPublishEvent({
                     item: newItem,
                     queue: NEW_PRODUCT_QUEUE_NAME,
                     stage: {
@@ -64,8 +65,11 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
                         name: stockStatusName
                     }
                 });
+                return {
+                    item: newItem,
+                    event: eventDetails
+                }
             }
-            return newItem
         } catch (error) {
             console.error(`Error creating item: ${error}`);
             throw new ApplicationError('Something went wrong:createItem', { error });
@@ -105,14 +109,14 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
             throw new ApplicationError('Something went wrong:generateTrackingId', { error });
         }
     },
-    calculateVolume(dimensions: Dimensions): VolumeDetails {
+    calculateVolume(dimensions: Dimensions) {
         try {
-            const { width, height, length, unit } = dimensions;
+            const { width, height, length, units } = dimensions;
             const volume = parseFloat(width) * parseFloat(height) * parseFloat(length);
             const value = volume.toFixed(2);
             return {
                 value: Number(value),
-                representation: `${value} ${unit}\u00B3`
+                representation: `${value} ${units.split("_")[1]}\u00B3`
             };
         } catch (error) {
             throw new ApplicationError('Something went wrong:calculateVolume', { error });

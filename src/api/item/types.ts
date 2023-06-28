@@ -3,6 +3,7 @@ export type Dimensions = {
     width: string;
     length: string;
     height: string;
+    units: string;
 };
 
 export type Category = {

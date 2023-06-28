@@ -72,7 +72,7 @@
         "user",
         "internal"
       ],
-      "default": "user"
+      "default": "internal"
     }
   }
 }

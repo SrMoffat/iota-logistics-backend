@@ -2,7 +2,8 @@
   "collectionName": "components_dimension_dimensions",
   "info": {
     "displayName": "dimension",
-    "icon": "arrowDown"
+    "icon": "arrowDown",
+    "description": ""
   },
   "options": {},
   "attributes": {
@@ -18,7 +19,7 @@
     "volume": {
       "type": "float"
     },
-    "unit": {
+    "units": {
       "type": "enumeration",
       "enum": [
         "millimeter_mm",
