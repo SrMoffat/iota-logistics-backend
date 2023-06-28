@@ -1,11 +1,11 @@
-const ITEM_API_PATH =  'api::item.item';
-const EVENT_API_PATH =  'api::event.event';
-const STAGE_API_PATH =  'api::stage.stage';
-const STATUS_API_PATH =  'api::status.status';
-const CATEGORY_API_PATH =  'api::category.category';
-const CURRENCY_API_PATH =  'api::currency.currency';
+const ITEM_API_PATH = 'api::item.item';
+const EVENT_API_PATH = 'api::event.event';
+const STAGE_API_PATH = 'api::stage.stage';
+const STATUS_API_PATH = 'api::status.status';
+const CATEGORY_API_PATH = 'api::category.category';
+const CURRENCY_API_PATH = 'api::currency.currency';
 const NEW_PRODUCT_QUEUE_NAME = 'new-product-created';
-const PACKAGING_API_PATH =  'api::packaging.packaging';
+const PACKAGING_API_PATH = 'api::packaging.packaging';
 
 const STATUSES = {
     STOCKED: 'Stocked',
@@ -13,10 +13,175 @@ const STATUSES = {
 const STAGES = {
     WAREHOUSING: 'Warehousing',
 };
+const STAGES_AND_STATUS_MAPPING = {
+    "Warehousing": [
+        { name: "Stocked", description: "The item is available in the warehouse inventory.", },
+        { name: "Out of Stock", description: "The item is temporarily unavailable in the warehouse inventory.", },
+    ],
+    "Processing": [
+        { name: "Order Received", description: "The system has received an order for the item." },
+        { name: "Order Validation", description: "The order is being validated for accuracy and availability." },
+        { name: "Order Picking", description: "The item is being picked from the warehouse shelves for fulfillment." },
+        { name: "Order Packing", description: "The item is being packed for shipment." },
+        { name: "Ready for Dispatch", description: "The item is prepared and ready to be dispatched for delivery." },
+    ],
+    "Transit": [
+        { name: "Shipment Created", description: "The shipment or transport order for the item has been created." },
+        { name: "Pick Up", description: "The item is ready for pickup by the carrier or logistics provider" },
+        { name: "In Transit", description: "The item is in transit and moving between locations." },
+        { name: "Customs Clearance", description: "The item is going through customs procedures at a border or port." },
+        { name: "Delayed", description: "The item's transport has experienced a delay, and its delivery is postponed." },
+        { name: "En Route", description: "The item is progressing towards its destination." }
+    ],
+    "Delivery": [
+        { name: "Out for Delivery", description: "The item is in transit for final delivery to the recipient." },
+        { name: "Delivery Attempted", description: "The carrier has attempted to deliver the item, but the recipient was not available." },
+        { name: "Delivery Rescheduled", description: "The delivery of the item has been rescheduled for a later time or date." },
+        { name: "Delivered", description: "The item has been successfully delivered to the recipient." },
+    ],
+    "Returned": [
+        { name: "Return Initiated", description: "The recipient has initiated a return request for the item." },
+        { name: "Return Shipment", description: "The item is being shipped back to the warehouse or seller for return processing." },
+        { name: "Return Received", description: "The returned item has been received at the warehouse" },
+        { name: "Return Issued", description: "The refund for the returned item has been processed and issued" },
+    ],
+    "Recovery": [
+        { name: "Lost", description: "The item is lost, and its location cannot be determined." },
+        { name: "Damaged", description: " The item has been damaged during transportation or storage." },
+    ],
+    "Termination": [
+        { name: "Archived", description: "The item has completed its life cycle and has been archived for historical purposes." },
+        { name: "Completed", description: "The item's journey or process is completed successfully." },
+    ],
+};
+const CURRENCIES = [
+    "AED: United Arab Emirates dirham",
+    "AFN: Afghan afghani",
+    "ALL: Albanian lek",
+    "AMD: Armenian dram",
+    "ANG: Netherlands Antillean guilder",
+    "AOA: Angolan kwanza",
+    "ARS: Argentine peso",
+    "AUD: Australian dollar",
+    "AWG: Aruban florin",
+    "AZN: Azerbaijani manat",
+    "BAM: Bosnia and Herzegovina convertible mark",
+    "BBD: Barbados dollar",
+    "BDT: Bangladeshi taka",
+    "BGN: Bulgarian lev",
+    "BHD: Bahraini dinar",
+    "BIF: Burundian franc",
+    "BMD: Bermudian dollar",
+    "BND: Brunei dollar",
+    "BOB: Boliviano",
+    "BOV: Bolivian Mvdol",
+    "BRL: Brazilian real",
+    "BSD: Bahamian dollar",
+    "BTN: Bhutanese ngultrum",
+    "BWP: Botswana pula",
+    "BYR: Belarusian ruble",
+    "BZD: Belize dollar",
+    "CAD: Canadian dollar",
+    "CDF: Congolese franc",
+    "CHE: WIR Euro",
+    "CHF: Swiss franc",
+    "CHW: WIR Franc",
+    "CLF: Unidad de Fomento",
+    "CLP: Chilean peso",
+    "CNY: Chinese yuan",
+    "COP: Colombian peso",
+    "COU: Unidad de Valor Real",
+    "CRC: Costa Rican colon",
+    "CUC: Cuban convertible peso",
+    "CUP: Cuban peso",
+    "CVE: Cape Verdean escudo",
+    "CZK: Czech koruna",
+    "DJF: Djiboutian franc",
+    "DKK: Danish krone",
+    "DOP: Dominican peso",
+    "DZD: Algerian dinar",
+    "EGP: Egyptian pound",
+    "ERN: Eritrean nakfa",
+    "ETB: Ethiopian birr",
+    "EUR: Euro",
+    "FJD: Fiji dollar",
+    "FKP: Falkland Islands pound",
+    "GBP: Pound sterling",
+    "GEL: Georgian lari",
+    "GHS: Ghanaian cedi",
+    "GIP: Gibraltar pound",
+    "GMD: Gambian dalasi",
+    "GNF: Guinean franc",
+    "GTQ: Guatemalan quetzal",
+    "GYD: Guyanese dollar",
+    "HKD: Hong Kong dollar",
+    "HNL: Honduran lempira",
+    "HRK: Croatian kuna",
+    "HTG: Haitian gourde",
+    "HUF: Hungarian forint",
+    "IDR: Indonesian rupiah",
+    "ILS: Israeli new shekel",
+    "INR: Indian rupee",
+    "IQD: Iraqi dinar",
+    "IRR: Iranian rial",
+    "TRY: Turkish lira",
+    "TTD: Trinidad and Tobago dollar",
+    "TWD: New Taiwan dollar",
+    "TZS: Tanzanian shillg",
+    "UAH: Ukrainian hryvnia",
+    "UGX: Ugandan shilling",
+    "USD: United States dollar",
+    "USN: United States dollar(next day)",
+    "USS: United States dollar(same day)",
+    "UYI: Uruguay Peso en Unidedades Indexadas",
+    "UYU: Uruguyan peso",
+    "UZS: Uzbekistan som",
+    "VEF: Venezuelan bolívar soberano",
+    "VND: Vietnamese đồng",
+    "VUV: Vanuatu vatu",
+    "WST: Samoan tala",
+    "XAF: CFA franc BEAC",
+    "XAG: Silver",
+    "XAU: Gold",
+    "XCD: East Caribbean dollar",
+    "XPD: Palladium",
+    "XPF: CFP franc",
+    "XPT: Platinum",
+    "XTS: Code reserved for testing",
+    "XXX: No currency",
+    "YER: Yemeni rial",
+    "ZAR: South African rand",
+    "ZMK: Zambian kwacha",
+    "BTC: Bitcoin",
+];
+
+const PRODUCT_CATEGORIES = [
+    'Electronics',
+    'Clothing',
+    'Home & Kitchen',
+    'Beauty & Personal Care',
+    'Books',
+    'Sports & Outdoors',
+    'Automotive',
+    'Toys & Games',
+    'Health & Wellness',
+    'Baby & Kids',
+    'Grocery',
+    'Pet Supplies',
+    'Office Supplies',
+    'Jewelry',
+    'Furniture',
+    'Tools & Home Improvement',
+    'Movies & Music',
+    'Industrial & Scientific',
+    'Arts & Crafts',
+    'Fashion Accessories'
+];
 
 export {
     STAGES,
     STATUSES,
+    CURRENCIES,
     ITEM_API_PATH,
     EVENT_API_PATH,
     STAGE_API_PATH,
@@ -24,5 +189,7 @@ export {
     CURRENCY_API_PATH,
     CATEGORY_API_PATH,
     PACKAGING_API_PATH,
-    NEW_PRODUCT_QUEUE_NAME
+    PRODUCT_CATEGORIES,
+    NEW_PRODUCT_QUEUE_NAME,
+    STAGES_AND_STATUS_MAPPING
 };

@@ -62,7 +62,7 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
             })
             ctx.body = {
                 success: true,
-                item: newItem
+                ...newItem
             };
         } catch (err) {
             ctx.body = err;

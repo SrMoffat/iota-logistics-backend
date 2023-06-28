@@ -50,7 +50,7 @@
           "height": {
             "type": "number"
           },
-          "unit": {
+          "units": {
             "type": "string"
           }
         },
@@ -58,7 +58,7 @@
           "length",
           "width",
           "height",
-          "unit"
+          "units"
         ]
       },
       "handling": {
@@ -100,9 +100,7 @@
       "supplier",
       "manufacturer",
       "quantity",
-      "weight",
       "dimensions",
-      "handling",
-      "compliance"
+      "handling"
     ]
   }
