@@ -26,3 +26,28 @@ The following non-functional requirements also need to be met.
 2. A JSON Schema that can also be used at runtime for payload validation purposes
 3. A Dockerfile for deployment of the API.
 
+
+
+# Local Setup
+
+### Prerequisites
+1. [Install NodeJS](https://nodejs.org/en/download) on your host machine
+2. Clone this repository
+```bash
+git clone https://github.com/SrMoffat/iota-logistics-backend.git
+```
+3. Install dependencies
+```bash
+yarn OR npm install
+```
+4. Export environment variables (After adding correct values to `.env` as per `.env.example`)
+5. Start the app
+```bash
+yarn develop:watch (for hot reload)
+```
+6. Open the browser window on `http://localhost:8000` for admin panel webapp and `http://localhost:1337` for the API
+
+
+### With Docker
+1. [Install Docker](https://docs.docker.com/engine/install/)
+

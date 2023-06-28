@@ -113,7 +113,6 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
                 onMessageReceived
             });
         } catch (error){
-            console.log('getAllItemQueueEvents', error);
             ctx.body = error;
         }
     }
