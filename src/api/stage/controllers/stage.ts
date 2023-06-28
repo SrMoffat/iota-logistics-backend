@@ -97,9 +97,6 @@ export default factories.createCoreController(`${STAGE_API_PATH}`, ({ strapi }: 
             const events = stages.filter(entry => `${entry.stage.id}` === `${stageId}`);
             return  events
         } catch (error) {
-            console.log('STAGE:Error==>', {
-                error
-            })
             throw new ApplicationError('Something went wrong:getStageEvents', { error });
         }
     }
