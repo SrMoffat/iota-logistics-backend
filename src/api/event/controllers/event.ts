@@ -10,14 +10,12 @@ import { EVENT_API_PATH, ITEM_API_PATH } from '../../../../constants';
 
 const getItemEvents = async (details) => {
     const { id, ctx, strapi } = details;
-    const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, id, {
-        populate: ['weight', 'dimensions', 'category', 'handling', 'events'],
-    });
+    const entryExists = await strapi.entityService.findOne(`${ITEM_API_PATH}`, id);
     if (!entryExists) {
         return ctx.notFound('Supply chain item not found');
     };
     const events = await strapi.db.query(`${EVENT_API_PATH}`).findMany({
-        populate: ['status', 'stage'],
+        populate: ['status', 'stage', 'user'],
     });
     return events;
 }
@@ -115,7 +113,7 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
                 queue: get(entryExists, 'trackingId'),
                 onMessageReceived
             });
-        } catch (error){
+        } catch (error) {
             ctx.body = error;
         }
     }
