@@ -32,11 +32,7 @@
           "unit": {
             "type": "string"
           }
-        },
-        "required": [
-          "value",
-          "unit"
-        ]
+        }
       },
       "dimensions": {
         "type": "object",
@@ -50,16 +46,10 @@
           "height": {
             "type": "number"
           },
-          "unit": {
+          "units": {
             "type": "string"
           }
-        },
-        "required": [
-          "length",
-          "width",
-          "height",
-          "unit"
-        ]
+        }
       },
       "handling": {
         "type": "object",
@@ -70,11 +60,7 @@
           "instructions": {
             "type": "string"
           }
-        },
-        "required": [
-          "type",
-          "instructions"
-        ]
+        }
       },
       "compliance": {
         "type": "object",
@@ -85,11 +71,7 @@
           "regulatory": {
             "type": "string"
           }
-        },
-        "required": [
-          "customs",
-          "regulatory"
-        ]
+        }
       }
     }
   }

@@ -51,6 +51,7 @@ yarn OR npm install
 4. Export environment variables (After adding correct values to `.env` as per `.env.example`)
 ```bash
 cat .env.example >> .env
+```
 5. Export environment variables
 ```bash
 set -o allexport; source .env; set +o allexport
@@ -104,7 +105,8 @@ Success will respond with
 2. Login: POST http://localhost:1337/api/auth/local
 3. Seed DB: POST http://localhost:1337/api/stages/seed
 4. Add Supply Chain Item: POST http://localhost:1337/api/supply-items (Also publishes a message to RabbitMQ under new-product-created queue)
-4. Update Supply Chain Item: PUT http://localhost:1337/api/supply-items
+5. Update Supply Chain Item: PUT http://localhost:1337/api/supply-items
+6. Add Events to Supply Chain Item: PUT http://localhost:1337/api/supply-items/:id/events
 ```
 
 
