@@ -8,7 +8,7 @@ import { factories, Strapi } from '@strapi/strapi';
 import createItemSchema from '../schemas/create-item.json';
 import updateItemSchema from '../schemas/update-item.json';
 
-import { ITEM_API_PATH } from '../../../../constants';
+import { ITEM_API_PATH, CATEGORY_API_PATH } from '../../../../constants';
 import { ItemService, Dimensions, ItemRequestBody } from '../types';
 
 const blockUserFromAccess = (input) => {
@@ -39,6 +39,16 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
             const dimensions: Dimensions = get(requestBody, 'dimensions');
             const volume = itemService.calculateVolume(dimensions).value;
             const trackingId = itemService.generateTrackingId();
+            const category = await strapi.db.query(`${CATEGORY_API_PATH}`).findOne({
+                where: {
+                    id: {
+                        $eq: requestBody.category
+                    }
+                },
+            });
+            if (!category) {
+                return ctx.notFound('Category provided was not found');
+            }
             blockUserFromAccess({
                 ctx,
                 clearance,

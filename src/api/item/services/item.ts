@@ -15,6 +15,7 @@ import {
     STAGE_API_PATH,
     EVENT_API_PATH,
     STAGES, STATUSES,
+    CATEGORY_API_PATH,
     NEW_PRODUCT_QUEUE_NAME,
 } from '../../../../constants';
 import {
