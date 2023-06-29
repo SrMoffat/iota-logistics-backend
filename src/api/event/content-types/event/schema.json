@@ -32,6 +32,12 @@
       "relation": "manyToOne",
       "target": "api::status.status",
       "inversedBy": "events"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "events"
     }
   }
 }

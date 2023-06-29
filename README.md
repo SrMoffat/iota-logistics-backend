@@ -32,6 +32,13 @@ The following non-functional requirements also need to be met.
 
 ### Prerequisites
 1. [Install NodeJS](https://nodejs.org/en/download) on your host machine
+2. [Install RabbitMQ](https://www.rabbitmq.com/download.html) on your host machine / Docker image
+
+
+
+
+
+
 2. Clone this repository and make it the active directory
 ```bash
 git clone https://github.com/SrMoffat/iota-logistics-backend.git
@@ -44,8 +51,11 @@ yarn OR npm install
 4. Export environment variables (After adding correct values to `.env` as per `.env.example`)
 ```bash
 cat .env.example >> .env
+5. Export environment variables
+```bash
+set -o allexport; source .env; set +o allexport
 ```
-5. Start the app
+6. Start the app
 ```bash
 yarn develop:watch (for hot reload)
 
@@ -53,16 +63,50 @@ NB: This will start two platforms:
 1. Admin Portal Webapp on `http://localhost:8000`
 1. API Server on `http://localhost:1337`
 
-It will also automaticslly initialize an SQLite database
+It will also automaticslly initialize an SQLite database locally
 ```
-6. Open the browser window on `http://localhost:8000` for admin panel webapp 
-7. Add a super admin user
-8. Seed the database with config tables by making this request
+7. Open the browser window on `http://localhost:8000` for admin panel webapp 
+8. Add a super admin user (needed to manage the admin panel and endpoint permissions)
+9. Visit the API url using  Postman, Insomnia or any HTTP client of your choice at `http://localhost:1337/api`
+10. Sign a user up on this endpoint
 ```bash
-POST http://localhost:1337/api/stages/seed (No auth required for now)
+POST `http://localhost:1337/api/auth/local/register`
+
+{
+    "username": "username",
+    "email": "email",
+    "password": "password"
+}
 ```
-7. 
-9. Open Postman, Insomnia or any HTTP client of your choice and interact with the API on `http://localhost:1337/api`
+11. Login as super admin on the admin panel and make endpoint accessible by:
+```bash
+Settings > Users & Permissions > Roles > Authenticated
+Allow the endpoint under `Stage` `seedStagesAndStatuses` i.e. POST /api/stages/seed
+```
+12. Seed the database with config tables by making this request
+```bash
+POST http://localhost:1337/api/stages/seed (Use token from previous step 9 as Bearer <token> in the headers)
+
+No body is required
+
+Success will respond with
+
+{
+    "success": true,
+    "message": "Seed was successful for Stage, Status, Category and Currency models"
+}
+```
+13. Interact with API endpoints as outlined in [this documentation]( https://documenter.getpostman.com/view/2684804/2s93z9bNL4):
+`PS`: Everytime you get `403 Forbidden` error, repeat Step 11 to allow the endpoint to be accessible (this is done only once when setting up)
+
+```bash
+1. Sign Up: POST http://localhost:1337/api/auth/local/register
+2. Login: POST http://localhost:1337/api/auth/local
+3. Seed DB: POST http://localhost:1337/api/stages/seed
+4. Add Supply Chain Item: POST http://localhost:1337/api/supply-items (Also publishes a message to RabbitMQ under new-product-created queue)
+4. Update Supply Chain Item: PUT http://localhost:1337/api/supply-items
+```
+
 
 
 

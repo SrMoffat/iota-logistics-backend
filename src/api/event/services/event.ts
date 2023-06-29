@@ -16,7 +16,7 @@ import {
     CreateAndPublishEventInput,
 } from '../types';
 
-const amqpUrl = 'amqp://localhost';
+const amqpUrl = process.env.AMQP_URL || 'amqp://localhost';
 
 const { ApplicationError } = utils.errors;
 
@@ -35,16 +35,17 @@ export default factories.createCoreService(`${EVENT_API_PATH}`, ({ strapi }: { s
     },
     async createEvent(details: CreateAndPublishEventInput): Promise<Event> {
         try {
-            const { item, stage, status } = details;
+            const { item, stage, status, user } = details;
             const data = {
                 item: item.id,
                 data: item,
                 stage: stage.id,
                 status: status.id,
+                user
             };
             const newEvent = await strapi.entityService.create(`${EVENT_API_PATH}`, {
                 data,
-                populate: ['item']
+                populate: ['item', 'user']
             });
             return newEvent
         } catch (error) {

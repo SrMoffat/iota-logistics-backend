@@ -24,6 +24,7 @@ export type CreateAndPublishEventInput = {
     queue: string;
     stage: StageOrStatus;
     status: StageOrStatus;
+    user: string | number;
 };
 
 export type Event = {

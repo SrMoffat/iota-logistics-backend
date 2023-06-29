@@ -53,7 +53,6 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
             });
             const itemCreated = get(newItem, 'id');
             if (itemCreated) {
-                //  
                 const eventDetails = await eventService.createAndPublishEvent({
                     item: newItem,
                     queue: NEW_PRODUCT_QUEUE_NAME,
@@ -64,7 +63,8 @@ export default factories.createCoreService(`${ITEM_API_PATH}`, ({ strapi }: { st
                     status: {
                         id: stockStatusId,
                         name: stockStatusName
-                    }
+                    },
+                    user: details.user
                 });
                 return {
                     item: newItem,
