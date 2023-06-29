@@ -112,6 +112,7 @@ export type ItemDetails = Omit<ItemRequestBody, 'compliance'> & {
     dimensions: Dimensions & {
         volume: number | string;
     };
+    user: string | number;
 };
 
 export type UpdateItemInput = {

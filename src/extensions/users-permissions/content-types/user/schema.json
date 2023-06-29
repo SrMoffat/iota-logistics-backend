@@ -73,6 +73,12 @@
         "internal"
       ],
       "default": "internal"
+    },
+    "events": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::event.event",
+      "mappedBy": "user"
     }
   }
 }

@@ -35,6 +35,7 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
             const itemService: ItemService = strapi.service(`${ITEM_API_PATH}`);
             const auth = get(ctx.state.auth, 'credentials');
             const clearance = get(auth, 'clearance');
+            const user = get(auth, 'id');
             const requestBody: ItemRequestBody = get(ctx.request, 'body');
             const dimensions: Dimensions = get(requestBody, 'dimensions');
             const volume = itemService.calculateVolume(dimensions).value;
@@ -64,6 +65,7 @@ export default factories.createCoreController(`${ITEM_API_PATH}`, ({ strapi }: {
             const newItem = await itemService.createItem({
                 ...omit(requestBody, 'compliance'),
                 trackingId,
+                user,
                 uuid: uuid(),
                 dimensions: {
                     ...dimensions,

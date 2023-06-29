@@ -25,6 +25,8 @@ const getItemEvents = async (details) => {
 export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
     async addSupplyChainItemEvent(ctx) {
         try {
+            const auth = get(ctx.state.auth, 'credentials');
+            const user = get(auth, 'id');
             const itemId = get(ctx.params, 'id');
             const requestBody = get(ctx.request, 'body');
             const stage = get(requestBody, 'stage');
@@ -46,7 +48,8 @@ export default factories.createCoreController(`${EVENT_API_PATH}`, ({ strapi }: 
                 status: {
                     id: get(status, 'id'),
                     name: get(status, 'name'),
-                }
+                },
+                user
             });
             ctx.body = {
                 success: true,
