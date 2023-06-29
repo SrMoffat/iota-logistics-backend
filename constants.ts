@@ -13,6 +13,15 @@ const STATUSES = {
 const STAGES = {
     WAREHOUSING: 'Warehousing',
 };
+const STAGE_DESCRIPTIONS = {
+    "Warehousing": "The item is in a warehouse or go down",
+    "Processing": "The item has been ordered by a customer",
+    "Transit": "The supplier has is fulfilling the order",
+    "Delivery": "The item has been dispatched to the customer",
+    "Returned": "The item has been returned by the customer",
+    "Recovery": "The item has been lost or damaged before delivery",
+    "Termination": "The order has been completed or refund issued",
+}
 const STAGES_AND_STATUS_MAPPING = {
     "Warehousing": [
         { name: "Stocked", description: "The item is available in the warehouse inventory.", },
@@ -190,6 +199,7 @@ export {
     CATEGORY_API_PATH,
     PACKAGING_API_PATH,
     PRODUCT_CATEGORIES,
+    STAGE_DESCRIPTIONS,
     NEW_PRODUCT_QUEUE_NAME,
     STAGES_AND_STATUS_MAPPING
 };

@@ -8,17 +8,29 @@ import { factories, Strapi } from '@strapi/strapi'
 import {
     CURRENCIES,
     STAGE_API_PATH,
+    EVENT_API_PATH,
     STATUS_API_PATH,
     CATEGORY_API_PATH,
     CURRENCY_API_PATH,
     PRODUCT_CATEGORIES,
+    STAGE_DESCRIPTIONS,
     STAGES_AND_STATUS_MAPPING,
-    EVENT_API_PATH
 } from '../../../../constants';
 
 const { ApplicationError } = utils.errors;
 
 export default factories.createCoreController(`${STAGE_API_PATH}`, ({ strapi }: { strapi: Strapi }) => ({
+    async find(ctx) {
+        try {
+            const { meta } = await super.find(ctx);
+            const data = await strapi.db.query(`${STAGE_API_PATH}`).findMany({
+                populate: ['statuses']
+            });
+            return { data, meta };
+        } catch (error) {
+            throw new ApplicationError('Something went wrong:find', { error });
+        }
+    },
     async seedStagesAndStatuses(ctx) {
         try {
             const requestBody = get(ctx.request, 'body');
@@ -27,10 +39,11 @@ export default factories.createCoreController(`${STAGE_API_PATH}`, ({ strapi }: 
             } else {
                 // Get stages hard coded data and feed table with stages and status
                 Object.keys(STAGES_AND_STATUS_MAPPING).forEach(async key => {
-                    const statuses = STAGES_AND_STATUS_MAPPING[key]
+                    const statuses = STAGES_AND_STATUS_MAPPING[key];
+                    const description = STAGE_DESCRIPTIONS[key];
                     const details = {
                         name: key,
-                        description: key,
+                        description,
                     };
                     const newStage = await strapi.entityService.create(`${STAGE_API_PATH}`, {
                         data: details
@@ -95,7 +108,7 @@ export default factories.createCoreController(`${STAGE_API_PATH}`, ({ strapi }: 
                 populate: ['item', 'stage', 'status'],
             });
             const events = stages.filter(entry => `${entry.stage.id}` === `${stageId}`);
-            return  events
+            return events
         } catch (error) {
             throw new ApplicationError('Something went wrong:getStageEvents', { error });
         }
