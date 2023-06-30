@@ -113,3 +113,12 @@ exports
 dist
 build
 .strapi-updater.json
+
+############################
+# Heroku
+# https://docs.strapi.io/dev-docs/deployment/heroku
+# It is usually recommended to version the package-lock.json file,
+# but it might cause issues on Heroku.
+############################
+
+yarn.lock

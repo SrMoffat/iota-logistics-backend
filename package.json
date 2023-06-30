@@ -22,6 +22,8 @@
     "ajv": "^8.12.0",
     "amqplib": "^0.10.3",
     "better-sqlite3": "8.0.1",
+    "pg": "^8.11.1",
+    "pg-connection-string": "^2.6.1",
     "uuid": "^9.0.0"
   },
   "author": {
